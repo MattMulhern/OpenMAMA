@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import os 
 Import('env')
 env = env.Clone()
 
@@ -40,6 +41,13 @@ tradeticker.cpp
 examples.append('Makefile.sample')
 examples.append('dictrequester.h')
 examples.append('parsecmd.h')
+
+if env['entitled'] == True:
+        env.Append( 
+        LIBPATH = [ os.path.join(env['entitle_home'],'lib') ],
+        CPPPATH = [ os.path.join(env['entitle_home'],'include/oea') ],
+        LIBS = ['oeac'],
+        CPPDEFINES = ['WITH_ENTITLEMENTS'])
 
 env.Append(LDFLAGS=['-rdynamic'])
 env.Append(LIBPATH=libPath)

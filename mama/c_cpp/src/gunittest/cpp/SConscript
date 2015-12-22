@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import os
 Import('env')
 env = env.Clone()
 
@@ -13,6 +14,13 @@ incpath.append('#mama/c_cpp/src/cpp')
 
 libpath = []
 libpath.append('$libdir')
+
+if env['entitled'] == True:
+        env.Append(
+        LIBPATH = [ os.path.join(env['entitle_home'],'lib') ],
+        CPPPATH = [ os.path.join(env['entitle_home'],'include/oea') ],
+        LIBS = ['oeac'],
+        CPPDEFINES = ['WITH_ENTITLEMENTS'])
 
 env.Append(LIBPATH=libpath, LIBS=['mama', 'mamacpp', 'wombatcommon',
            'dl'], CPPPATH=incpath)
