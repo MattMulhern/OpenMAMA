@@ -1878,12 +1878,13 @@ enableEntitlements (const char **servers)
         gEntitlementClient = 0;
     }
 
-    for (middleware=0; middleware != MAMA_MIDDLEWARE_MAX; ++middleware)
+    for (middleware = 0; middleware != gImpl.middlewares.count; ++middleware)
     {
-        mamaBridgeImpl* impl = (mamaBridgeImpl*) gImpl.myBridges [middleware];
-        if (impl)
+        mamaMiddlewareLib*  middlewareLib   = gImpl.middlewares.byIndex[middleware];
+
+        if (middlewareLib && middlewareLib->bridge)
         {
-            /* Check if entitlements are deferred to bridge */
+            mamaBridgeImpl* impl = (mamaBridgeImpl*) middlewareLib->bridge;
             if (mamaBridgeImpl_areEntitlementsDeferred(impl) == 1)
             {
                 mama_log (MAMA_LOG_LEVEL_WARN,
