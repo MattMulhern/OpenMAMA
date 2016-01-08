@@ -22,7 +22,6 @@
 #ifndef MamaStatusH__
 #define MamaStatusH__
 
-#define MAMA_STATUS_BASE 9000
 #define MAMA_STATUS_MAX  1000
 
 

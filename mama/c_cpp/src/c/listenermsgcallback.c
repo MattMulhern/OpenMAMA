@@ -36,8 +36,8 @@
 #include "mama/statscollector.h"
 
 #ifdef WITH_ENTITLEMENTS
-#include <OeaClient.h>
-extern oeaClient *   gEntitlementClient;
+#include "mama/entitlement.h"
+//extern oeaClient *   gEntitlementClient;
 #endif /* WITH_ENTITLEMENTS */
 
 
@@ -384,13 +384,9 @@ listenerMsgCallback_processMsg( listenerMsgCallback callback, mamaMsg msg,
         }
         case MAMA_MSG_STATUS_NOT_ENTITLED:
         {
-#ifdef WITH_ENTITLEMENTS 
             listenerMsgCallback_invokeErrorCallback(callback, ctx,
                     MAMA_STATUS_NOT_ENTITLED, subscription, userSymbol);
-            return;
-#else
             break;
-#endif
         }
         case MAMA_MSG_STATUS_TOPIC_CHANGE:
         {
@@ -634,7 +630,10 @@ static void handleNoSubscribers (msgCallback *callback,
 static int
 checkEntitlement( msgCallback *callback, mamaMsg msg, SubjectContext* ctx )
 {
-#ifdef WITH_ENTITLEMENTS 
+#ifndef WITH_ENTITLEMENTS 
+    return 1;
+#endif /* WITH_ENTITLEMENTS */
+
     int result = 0;
     int32_t value;
     if( ctx->mEntitlementAlreadyVerified )
@@ -669,13 +668,14 @@ checkEntitlement( msgCallback *callback, mamaMsg msg, SubjectContext* ctx )
             return 1;
         }
         ctx->mEntitleCode = value;
-        if (ctx->mOeaSubscription != NULL)
+        if (ctx->mEntitlementSubscription != NULL)
         {
-            oeaSubscription_addEntitlementCode (ctx->mOeaSubscription, ctx->mEntitleCode);
-            oeaSubscription_open (ctx->mOeaSubscription);
-            result = oeaSubscription_isOpen (ctx->mOeaSubscription);
-
-            if (!result)
+            // oeaSubscription_addEntitlementCode (ctx->mOeaSubscription, ctx->mEntitleCode);
+            // oeaSubscription_open (ctx->mOeaSubscription);
+            // result = oeaSubscription_isOpen (ctx->mOeaSubscription);
+            mamaEntitlementBridge* bridge = (mamaEntitlementBridge*) ctx->mEntitlementBridge;
+            status = bridge->registerSubjectContext(ctx);
+            if (MAMA_STATUS_OK != result)
             {
                 const char* userSymbol  = NULL;
                 void*       closure = NULL;
@@ -710,9 +710,6 @@ checkEntitlement( msgCallback *callback, mamaMsg msg, SubjectContext* ctx )
     }
 
     return result;
-#else 
-    return 1;
-#endif /* WITH_ENTITLEMENTS */
 }
 
 void listenerMsgCallbackImpl_logUnknownStatus(SubjectContext *ctx, mamaMsgStatus status,

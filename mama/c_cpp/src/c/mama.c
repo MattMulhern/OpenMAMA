@@ -54,45 +54,18 @@
 #define DEFAULT_STATS_INTERVAL 60
 
 #ifdef WITH_ENTITLEMENTS
-#include <OeaClient.h>
-#include <OeaStatus.h>
-#define SERVERS_PROPERTY "entitlement.servers"
-#define MAX_ENTITLEMENT_SERVERS 32
+#include "entitlement.h"
 #define MAX_USER_NAME_STR_LEN 64
 #define MAX_HOST_NAME_STR_LEN 64
 
 extern void initReservedFields (void);
 
 
-#if (OEA_MAJVERSION == 2 && OEA_MINVERSION >= 11) || OEA_MAJVERSION > 2
-
-void MAMACALLTYPE entitlementDisconnectCallback (oeaClient*,
-                                    const OEA_DISCONNECT_REASON,
-                                    const char * const,
-                                    const char * const,
-                                    const char * const);
-void MAMACALLTYPE entitlementUpdatedCallback (oeaClient*,
-                                 int openSubscriptionForbidden);
-void MAMACALLTYPE entitlementCheckingSwitchCallback (oeaClient*,
-                                        int isEntitlementsCheckingDisabled);
-#else
-
-void entitlementDisconnectCallback (oeaClient*,
-                                    const OEA_DISCONNECT_REASON,
-                                    const char * const,
-                                    const char * const,
-                                    const char * const);
-void entitlementUpdatedCallback (oeaClient*,
-                                 int openSubscriptionForbidden);
-void entitlementCheckingSwitchCallback (oeaClient*,
-                                        int isEntitlementsCheckingDisabled);
-#endif
-oeaClient *               gEntitlementClient = 0;
-oeaStatus                 gEntitlementStatus;
+mamaEntitlementBridge*    gEntitlementBridge;
 mamaEntitlementCallbacks  gEntitlementCallbacks;
 static const char*        gServerProperty     = NULL;
 static const char*        gServers[MAX_ENTITLEMENT_SERVERS];
-static mama_status enableEntitlements (const char **servers);
+static mama_status enableEntitlements ();
 static const char*        gEntitled = "entitled";
 #else
 static const char*        gEntitled = "not entitled";
@@ -899,7 +872,7 @@ mama_openWithPropertiesCount (const char* path,
     {
         mama_log (MAMA_LOG_LEVEL_SEVERE,
                   "mama_openWithProperties(): "
-                  "Error connecting to Entitlements Server");
+                  "Error establishing entitlements.");
         wthread_static_mutex_unlock (&gImpl.myLock);
         mama_close();
         
@@ -1208,10 +1181,10 @@ mama_closeCount (unsigned int* count)
     if (!--gImpl.myRefCount)
     {
 #ifdef WITH_ENTITLEMENTS
-        if( gEntitlementClient != 0 )
+        if( gEntitlementBridge != 0 )
         {
-            oeaClient_destroy( gEntitlementClient );
-            gEntitlementClient = 0;
+            mamaEntitlement_destroy (gEntitlementBridge);
+            gEntitlementBridge = 0;
         }
 #endif /* WITH_ENTITLEMENTS */
 
@@ -1726,8 +1699,8 @@ mama_getIpAddress (const char** ipAddress)
     return MAMA_STATUS_OK;
 }
 
-#ifdef WITH_ENTITLEMENTS
 
+//TODO: needs wired up!
 mama_status
 mama_registerEntitlementCallbacks (const mamaEntitlementCallbacks* entitlementCallbacks)
 {
@@ -1736,12 +1709,12 @@ mama_registerEntitlementCallbacks (const mamaEntitlementCallbacks* entitlementCa
     return MAMA_STATUS_OK;
 }
 
-#if (OEA_MAJVERSION == 2 && OEA_MINVERSION >= 11) || OEA_MAJVERSION > 2
-void MAMACALLTYPE entitlementDisconnectCallback (oeaClient*                  client,
-                                    const OEA_DISCONNECT_REASON reason,
-                                    const char * const          userId,
-                                    const char * const          host,
-                                    const char * const          appName)
+void MAMACALLTYPE entitlementDisconnectCallback (
+                            mamaEntitlementSubscriptionHandle*  handle,
+                            const OEA_DISCONNECT_REASON    reason,
+                            const char * const             userId,
+                            const char * const             host,
+                            const char * const             appName)
 {
     if (gEntitlementCallbacks.onSessionDisconnect != NULL)
     {
@@ -1749,8 +1722,8 @@ void MAMACALLTYPE entitlementDisconnectCallback (oeaClient*                  cli
     }
 }
 
-void MAMACALLTYPE entitlementUpdatedCallback (oeaClient* client,
-                                 int openSubscriptionForbidden)
+void MAMACALLTYPE entitlementUpdatedCallback (* client,
+                            int openSubscriptionForbidden)
 {
     if (gEntitlementCallbacks.onEntitlementUpdate != NULL)
     {
@@ -1758,8 +1731,9 @@ void MAMACALLTYPE entitlementUpdatedCallback (oeaClient* client,
     }
 }
 
-void MAMACALLTYPE entitlementCheckingSwitchCallback (oeaClient* client,
-                                        int isEntitlementsCheckingDisabled)
+void MAMACALLTYPE entitlementCheckingSwitchCallback (
+                            mamaEntitlementSubscriptionHandle* handle,
+                            int isEntitlementsCheckingDisabled)
 {
     if (gEntitlementCallbacks.onEntitlementCheckingSwitch != NULL)
     {
@@ -1767,224 +1741,15 @@ void MAMACALLTYPE entitlementCheckingSwitchCallback (oeaClient* client,
     }
 }
 
-#else
-
-void entitlementDisconnectCallback (oeaClient*                  client,
-                                    const OEA_DISCONNECT_REASON reason,
-                                    const char * const          userId,
-                                    const char * const          host,
-                                    const char * const          appName)
-{
-    if (gEntitlementCallbacks.onSessionDisconnect != NULL)
-    {
-        gEntitlementCallbacks.onSessionDisconnect (reason, userId, host, appName);
-    }
-}
-
-void entitlementUpdatedCallback (oeaClient* client,
-                                 int openSubscriptionForbidden)
-{
-    if (gEntitlementCallbacks.onEntitlementUpdate != NULL)
-    {
-        gEntitlementCallbacks.onEntitlementUpdate();
-    }
-}
-
-void entitlementCheckingSwitchCallback (oeaClient* client,
-                                        int isEntitlementsCheckingDisabled)
-{
-    if (gEntitlementCallbacks.onEntitlementCheckingSwitch != NULL)
-    {
-        gEntitlementCallbacks.onEntitlementCheckingSwitch(isEntitlementsCheckingDisabled);
-    }
-}
-
-#endif
-
-
-const char **
-mdrvImpl_ParseServersProperty()
-{
-    char *ptr;
-    int idx = 0;
-
-    if (gServerProperty == NULL)
-    {
-        memset (gServers, 0, sizeof(gServers));
-
-        if( properties_Get (gProperties, SERVERS_PROPERTY) == NULL)
-        {
-            if (gMamaLogLevel)
-            {
-                mama_log( MAMA_LOG_LEVEL_WARN,
-                          "Failed to open properties file "
-                          "or no entitlement.servers property." );
-            }
-            return NULL;
-        }
-
-        gServerProperty = strdup (properties_Get (gProperties,
-                                                  SERVERS_PROPERTY));
-
-        if (gMamaLogLevel)
-        {
-            mama_log (MAMA_LOG_LEVEL_NORMAL,
-                      "entitlement.servers=%s",
-                      gServerProperty == NULL ? "NULL" : gServerProperty);
-        }
-
-        while( idx < MAX_ENTITLEMENT_SERVERS - 1 )
-        {
-            gServers[idx] = strtok_r (idx == 0 ? (char *)gServerProperty : NULL
-                                      , ",",
-                                      &ptr);
-
-
-            if (gServers[idx++] == NULL) /* last server parsed */
-            {
-                break;
-            }
-
-            if (gMamaLogLevel)
-            {
-                mama_log (MAMA_LOG_LEVEL_NORMAL,
-                          "Parsed entitlement server: %s",
-                          gServers[idx-1]);
-            }
-        }
-    }
-    return gServers;
-}
-
+//TODO: this will call entitlementBridge_create function.
 static mama_status
-enableEntitlements (const char **servers)
+enableEntitlements ()
 {
-    int size = 0;
-    const char* portLowStr = NULL;
-    const char* portHighStr = NULL;
-    int portLow = 8000;
-    int portHigh = 8001;
-    oeaCallbacks entitlementCallbacks;
-    const char* altUserId;
-    const char* altIp;
-    const char* site;
-    mamaMiddleware middleware = 0;
-    int entitlementsRequired = 0; /*boolean*/
-
-
-    if (gEntitlementClient != 0)
-    {
-        oeaClient_destroy (gEntitlementClient);
-        gEntitlementClient = 0;
-    }
-
-    for (middleware = 0; middleware != gImpl.middlewares.count; ++middleware)
-    {
-        mamaMiddlewareLib*  middlewareLib   = gImpl.middlewares.byIndex[middleware];
-
-        if (middlewareLib && middlewareLib->bridge)
-        {
-            mamaBridgeImpl* impl = (mamaBridgeImpl*) middlewareLib->bridge;
-            if (mamaBridgeImpl_areEntitlementsDeferred(impl) == 1)
-            {
-                mama_log (MAMA_LOG_LEVEL_WARN,
-                    "Entitlements deferred on %s bridge.",
-                    mamaMiddleware_convertToString (middleware));
-            }
-            else
-            {
-                /* Entitlements are not deferred, continue with entitlement checking */
-                entitlementsRequired = 1;
-            }
-        }
-    }
-
-    /* Entitlements are deferred, do not continue with entitlement checking */
-    if (entitlementsRequired==0)
-        return MAMA_STATUS_OK;
-
-    if (servers == NULL)
-    {
-        if (NULL == (servers = mdrvImpl_ParseServersProperty()))
-        {
-            return MAMA_ENTITLE_NO_SERVERS_SPECIFIED;
-        }
-    }
-
-    while (servers[size] != NULL)
-    {
-        size = size + 1;
-    }
-
-    mama_log (MAMA_LOG_LEVEL_NORMAL,
-              "Attempting to connect to entitlement server");
-
-    portLowStr  = properties_Get (gProperties, "mama.entitlement.portlow");
-    portHighStr = properties_Get (gProperties, "mama.entitlement.porthigh");
-
-    /*properties_Get returns NULL if property does not exist, in which case
-      we just use defaults*/
-    if (portLowStr != NULL)
-    {
-        portLow  = (int)atof(portLowStr);
-    }
-
-    if (portHighStr != NULL)
-    {
-        portHigh = (int)atof(portHighStr);
-    }
-
-    altUserId   = properties_Get (gProperties, "mama.entitlement.altuserid");
-    site = properties_Get (gProperties, "mama.entitlement.site");
-    altIp = properties_Get (gProperties, "mama.entitlement.effective_ip_address");
-    entitlementCallbacks.onDisconnect = entitlementDisconnectCallback;
-    entitlementCallbacks.onEntitlementsUpdated = entitlementUpdatedCallback;
-    entitlementCallbacks.onSwitchEntitlementsChecking = entitlementCheckingSwitchCallback;
-
-    gEntitlementClient = oeaClient_create(&gEntitlementStatus,
-                                site,
-                                portLow,
-                                portHigh,
-                                servers,
-                                size);
-
-    if (gEntitlementStatus != OEA_STATUS_OK)
-    {
-        return gEntitlementStatus + MAMA_STATUS_BASE;
-    }
-
-    if (gEntitlementClient != 0)
-    {
-        if (OEA_STATUS_OK != (gEntitlementStatus = oeaClient_setCallbacks (gEntitlementClient, &entitlementCallbacks)))
-        {
-            return gEntitlementStatus + MAMA_STATUS_BASE;
-        }
-
-        if (OEA_STATUS_OK != (gEntitlementStatus = oeaClient_setAlternativeUserId (gEntitlementClient, altUserId)))
-        {
-            return gEntitlementStatus + MAMA_STATUS_BASE;
-        }
-
-        if (OEA_STATUS_OK != (gEntitlementStatus = oeaClient_setEffectiveIpAddress (gEntitlementClient, altIp)))
-        {
-            return gEntitlementStatus + MAMA_STATUS_BASE;
-        }
-
-        if (OEA_STATUS_OK != (gEntitlementStatus = oeaClient_setApplicationId (gEntitlementClient, appContext.myApplicationName)))
-        {
-            return gEntitlementStatus + MAMA_STATUS_BASE;
-        }
-
-        if (OEA_STATUS_OK != (gEntitlementStatus = oeaClient_downloadEntitlements ((oeaClient*const)gEntitlementClient)))
-        {
-            return gEntitlementStatus + MAMA_STATUS_BASE;
-        }
-    }
-
-    return MAMA_STATUS_OK;
+    mama_status status = mamaEntitlementBridge_create(&gEntitlementBridge);
+    //todo: check what else needs initialised here.
+    return status;
 }
 
-#endif
 
 MAMADeprecated("mamaInternal_registerBridge has been deprecated, use dynamic loading instead!")
 void

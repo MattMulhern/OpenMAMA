@@ -88,19 +88,20 @@ typedef enum
 
 typedef struct SubjectContext_
 {    
-#ifdef WITH_ENTITLEMENTS
     EntitleStatus       mEntitlement; /* default to NOT_DETERMINED! */
     int32_t             mEntitleCode;
     uint8_t             mEntitlementAlreadyVerified;
-    oeaSubscription*    mOeaSubscription;
-#endif
     /* The data quality context includes a recap request. */
     mamaDqContext       mDqContext;
     void*               mClosure;
     unsigned short      mInitialArrived;
     char*               mSymbol;
     int                 mImageCount; 
-    
+#ifdef WITH_ENTITLEMENTS
+    //oeaSubscription*    mOeaSubscription;
+    mamaEntitlementSubscriptionHandle*  mEntitlementSubscription;
+    mamaEntitlementBridge*              mEntitlementBridge;
+#endif
 } SubjectContext_;
     
 /* *************************************************** */
