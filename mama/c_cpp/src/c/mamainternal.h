@@ -34,6 +34,7 @@ extern "C"
 
 #define MAMA_PAYLOAD_MAX        CHAR_MAX
 #define MAMA_MAX_MIDDLEWARES    CHAR_MAX
+#define MAMA_MAX_ENTITLEMENTS   CHAR_MAX
 
 /**
  * @brief Structure for storing combined mamaPayloadBridge and LIB_HANDLE data.
@@ -46,6 +47,16 @@ typedef struct mamaPayloadLib_
 
     /* Indcates if the bridge was allocated by MAMA or the bridge */
     mama_bool_t       mamaAllocated;
+} mamaPayloadLib;
+
+
+/*
+ * @brief Structure for storing combined mamaEntitlementBridge and LIB_HANDLE data.
+ */
+ typedef struct mamaEntitlementLib_
+{
+    mamaEntitlementBridge bridge;
+    LIB_HANDLE            library;
 } mamaPayloadLib;
 
 

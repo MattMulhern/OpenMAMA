@@ -68,66 +68,25 @@ oea_EntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
 mama_status
 oeaEntitlementBridge_create(entitlementBridge* bridge)
 {
-    oeaEntitlementBridge* impl = NULL;
+    mama_status           status = MAMA_STATUS_NOT_ENTITLED;
+    oeaEntitlementBridge* impl   = NULL;
+
     impl = malloc(sizeof(oeaEntitlementBridge));
 
-    // allocate memory for array of servers (possibly not needed as we already allocate size of struct?)
-    //memset (impl->mServers, 0, sizeof(impl->mServers));
+    //INITIALIZE_ENTITLEMENT_BRIDGE(bridge, "oea");
 
-    // MAGIC MACRO STUFF
+    status = oeaEntitlementBridge_init(bridge);
 
-    *bridge = impl;
-    return MAMA_STATUS_OK;
+    if (MAMA_STATUS_OK != status) return status;
+
+    *bridge.mImpl = impl;
+    return status;
 }
 
-
-const char **
-oeaEntitlmentBridge_parseServersProperty(entitlementBridge* bridge)
-{
-    char *ptr;
-    int idx = 0;
-    const char*     serverProperty = mama_getProperty(OEA_SERVER_PROPERTY);
-    const char*     servers[OEA_MAX_ENTITLEMENT_SERVERS];
-
-    memset (servers, 0, sizeof(servers));
-
-    if (NULL == serverProperty)
-    {
-        mama_log( MAMA_LOG_LEVEL_WARN,
-                  "Failed to open properties file "
-                  "or no entitlement.servers property." );
-        return NULL;
-    }
-
-    mama_log (MAMA_LOG_LEVEL_NORMAL,
-              "entitlement.servers=%s",
-              serverProperty == NULL ? "NULL" : serverProperty);
-
-    while( idx < OEA_MAX_ENTITLEMENT_SERVERS - 1 )
-    {
-        servers[idx] = strtok_r (idx == 0 ? (char *)serverProperty : NULL
-                                  , ",",
-                                  &ptr);
-
-
-        if (servers[idx++] == NULL) /* last server parsed */
-        {
-            break;
-        }
-
-        if (gMamaLogLevel)
-        {
-            mama_log (MAMA_LOG_LEVEL_NORMAL,
-                      "Parsed entitlement server: %s",
-                      servers[idx-1]);
-        }
-    }
-    return servers;
-}
 
 
 mama_status
-oeaEntitlementBridge_init(oeaEntitlementBridge* bridge)
+oeaEntitlementBridge_init(entitlementBridge* bridge)
 {
     // Should be an reimplementation of enableEntitlements() previously in mama.c
     const char*     portLowStr                  = NULL;
@@ -144,7 +103,7 @@ oeaEntitlementBridge_init(oeaEntitlementBridge* bridge)
     const char*     site;
     const char*     entitlementServers[OEA_MAX_ENTITLEMENT_SERVERS];
 
-    oeaClient* entClient = bridge->mOeaClient;
+    oeaClient* entClient;
     if (entClient != 0)
     {
         oeaClient_destroy (entClient);
@@ -229,15 +188,66 @@ oeaEntitlementBridge_init(oeaEntitlementBridge* bridge)
         }
     }
 
+    /* allocate oeaEntitlementBridge */
+    if (MAMA_STATUS_OK != oeaEntitlementBridge_create(bridge)) return status;
+
+    /* set client in oeaEntitlementBridge struct */
+    bridge->mImpl.mOeaClient = entClient;
+
     return MAMA_STATUS_OK;
 }
+
+const char **
+oeaEntitlmentBridge_parseServersProperty(entitlementBridge* bridge)
+{
+    char *ptr;
+    int idx = 0;
+    const char*     serverProperty = mama_getProperty(OEA_SERVER_PROPERTY);
+    const char*     servers[OEA_MAX_ENTITLEMENT_SERVERS];
+
+    memset (servers, 0, sizeof(servers));
+
+    if (NULL == serverProperty)
+    {
+        mama_log( MAMA_LOG_LEVEL_WARN,
+                  "Failed to open properties file "
+                  "or no entitlement.servers property." );
+        return NULL;
+    }
+
+    mama_log (MAMA_LOG_LEVEL_NORMAL,
+              "entitlement.servers=%s",
+              serverProperty == NULL ? "NULL" : serverProperty);
+
+    while( idx < OEA_MAX_ENTITLEMENT_SERVERS - 1 )
+    {
+        servers[idx] = strtok_r (idx == 0 ? (char *)serverProperty : NULL
+                                  , ",",
+                                  &ptr);
+
+
+        if (servers[idx++] == NULL) /* last server parsed */
+        {
+            break;
+        }
+
+        if (gMamaLogLevel)
+        {
+            mama_log (MAMA_LOG_LEVEL_NORMAL,
+                      "Parsed entitlement server: %s",
+                      servers[idx-1]);
+        }
+    }
+    return servers;
+}
+
 
 mama_status
 oeaEntitlementBridge_handleNewSubscription(entitlementBridge bridge, subjectContext ctx)
 {
     oeaEntitlementBridge* impl = (oeaEntitlementBridge*) bridge;
     oeaStatus status;
-    ctx->mEntitlementSubscription = oeaClient_newSubscription(&status,bridge->mOeaClient);
+    ctx->mEntitlementSubscription = oeaClient_newSubscription(&status, bridge->mOeaClient);
     if (OEA_STATUS_OK != status)
     {
         return MAMA_STATUS_NOT_ENTITLED; //TODO: Is this the right status to return?

@@ -26,8 +26,14 @@ mamaEntitlementBridge_create(mamaEntitlementBridge** bridge)
 {
     mamaEntitlementBridge* impl = NULL;
     impl = malloc(sizeof(mamaEntitlementBridge));
-    // MAGIC MACRO STUFF
 
     *bridge = impl;
+    return MAMA_STATUS_OK;
+}
+
+mama_status
+mamaEntitlementBridge_destroy(mamaEntitlementBridge** bridge)
+{
+    if (bridge) free(bridge);
     return MAMA_STATUS_OK;
 }

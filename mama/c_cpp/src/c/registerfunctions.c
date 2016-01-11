@@ -357,3 +357,18 @@ mamaInternal_registerPayloadFunctions (LIB_HANDLE         bridgeLib,
 
     return status;
 }
+
+/**
+ * Register function pointers associated with a specific entitlement.
+ */
+mama_status
+mamaInternal_registerEntitlementFunctions (LIB_HANDLE         bridgeLib,
+                                           mamaEntitlementBridge* bridge,
+                                           const char*        name)
+{
+    mama_status status  = MAMA_STATUS_OK;
+    void* result        = NULL;
+    char  functionName[256];
+    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_create, entitlementCreate, entitlementBridge_create);
+    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_destroy, entitlementDestroy, entitlementBridge_destroy);
+}
