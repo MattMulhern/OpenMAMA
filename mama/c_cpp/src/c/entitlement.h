@@ -22,11 +22,21 @@
 #ifndef EntitlementH__
 #define EntitlementH__
 
-//typedef struct entitlementSubscription; //sub level used on a per-supsription basis
-typedef void* mamaEntitlementBridge;
-typedef void* mamaEntitlementSubscriptionHandle;
+typedef void* entitlementBridge;
+typedef void* entitlementSubscriptionHandle;
 
-typedef struct mamaEntitlementBridge_
+
+typedef mama_status
+(*entitlementBridge_create) (entitlementBridge* bridge);
+typedef mama_status
+(*entitlementBridge_destroy) (entitlementBridge* bridge);
+typedef mama_status
+(*entitlementBridge_registerSubjectContext) (SubjectContext* ctx);
+typedef mama_status
+(*entitlementBridge_handleNewSubscription) (entitlementBridge* bridge, SubjectContext* ctx);
+
+
+typedef struct mamaEntitlementBridge
 { 
     entitlementBridge   mImpl; /* pointer to implementation bridge struct */
 
@@ -35,11 +45,11 @@ typedef struct mamaEntitlementBridge_
     entitlementBridge_destroy                   entitlmentDestroy;
 
     /* implementation functions*/
-    entitlementBridge_registerSubjectContext    entitlmentRegisterSubjectContext;
-    entitlementBridge_handleNewSubscription     entitlmentHandleNewSubscription;
+    entitlementBridge_registerSubjectContext    entitlementRegisterSubjectContext;
+    entitlementBridge_handleNewSubscription     entitlementHandleNewSubscription;
 
     void*   mClosure;
-} mamaEntitlementBridge;
+} mamaEntitlementBridge_;
 
 
 typedef struct mamaEntitlementSubscription_
@@ -47,13 +57,6 @@ typedef struct mamaEntitlementSubscription_
     mamaEntitlementBridge*    mEntitlementBridge;
 } mamaEntitlementSubscription;
 
-//typedef mama_status
-//(*entitlementBridge_create) (entitlementBridge**    bridge);
 
-// typedef mama_status
-// (*entitlementBridge_destroy) (entitlementBridge**   bridge);
-
-typedef mama_status
-(*entitlementBridge_registerSubjectContext) (SubjectContext* ctx);
 
 #endif /* EntitlementH__ */
