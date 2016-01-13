@@ -34,6 +34,14 @@ mamaEntitlementBridge_create(mamaEntitlementBridge** bridge)
 mama_status
 mamaEntitlementBridge_destroy(mamaEntitlementBridge** bridge)
 {
-    if (bridge) free(bridge);
+    if (bridge)
+    {
+        if (bridge.mImpl)
+        {
+            /* Call bridge implementation destroy method. */
+            impl->destroy(mImpl);
+        }
+        free(bridge);
+    }
     return MAMA_STATUS_OK;
 }
