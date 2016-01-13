@@ -53,7 +53,6 @@
 #define MAMA_PROPERTY_BRIDGE "mama.bridge.provider"
 #define DEFAULT_STATS_INTERVAL 60
 
-#ifdef WITH_ENTITLEMENTS
 #include "entitlement.h"
 #define MAX_USER_NAME_STR_LEN 64
 #define MAX_HOST_NAME_STR_LEN 64
@@ -64,8 +63,9 @@ extern void initReservedFields (void);
 mamaEntitlementBridge*    gEntitlementBridge;
 mamaEntitlementCallbacks  gEntitlementCallbacks;
 static const char*        gServerProperty     = NULL;
-static const char*        gServers[MAX_ENTITLEMENT_SERVERS];
-static mama_status enableEntitlements ();
+//static const char*        gServers[MAX_ENTITLEMENT_SERVERS];
+// static mama_status enableEntitlements ();
+#ifdef WITH_ENTITLEMENTS
 static const char*        gEntitled = "entitled";
 #else
 static const char*        gEntitled = "not entitled";
@@ -892,7 +892,7 @@ mama_openWithPropertiesCount (const char* path,
     /* MMTODO: just loading oea libs here, need to put somethign more dynamic in here 
      * note: mama_loadEntitlementBridge already populates gImpl.entitlements wtable.
      */
-    mama_status status = mamaEntitlementBridge_create(gEntitlementBridge)
+    mama_status status = mamaEntitlementBridge_create(&gEntitlementBridge);
     if (MAMA_STATUS_OK != status)
     {
         mama_log(MAMA_LOG_LEVEL_SEVERE,
@@ -1236,7 +1236,7 @@ mama_closeCount (unsigned int* count)
 #ifdef WITH_ENTITLEMENTS
         if( gEntitlementBridge != 0 )
         {
-            mamaEntitlement_destroy (gEntitlementBridge);
+            mamaEntitlementBridge_destroy (gEntitlementBridge);
             gEntitlementBridge = 0;
         }
 #endif /* WITH_ENTITLEMENTS */
@@ -1761,9 +1761,9 @@ mama_registerEntitlementCallbacks (const mamaEntitlementCallbacks* entitlementCa
     gEntitlementCallbacks = *entitlementCallbacks;
     return MAMA_STATUS_OK;
 }
-
+ /*
 void MAMACALLTYPE entitlementDisconnectCallback (
-                            mamaEntitlementSubscriptionHandle*  handle,
+                            mamaEntitlementBridge*         bridge,
                             const OEA_DISCONNECT_REASON    reason,
                             const char * const             userId,
                             const char * const             host,
@@ -1785,7 +1785,7 @@ void MAMACALLTYPE entitlementUpdatedCallback (* client,
 }
 
 void MAMACALLTYPE entitlementCheckingSwitchCallback (
-                            mamaEntitlementSubscriptionHandle* handle,
+                            mamaEntitlementBridge*         bridge,
                             int isEntitlementsCheckingDisabled)
 {
     if (gEntitlementCallbacks.onEntitlementCheckingSwitch != NULL)
@@ -1793,7 +1793,7 @@ void MAMACALLTYPE entitlementCheckingSwitchCallback (
         gEntitlementCallbacks.onEntitlementCheckingSwitch(isEntitlementsCheckingDisabled);
     }
 }
-
+*/
 //TODO: this will call entitlementBridge_create function.
 // static mama_status
 // enableEntitlements ()
@@ -2142,8 +2142,8 @@ mama_status
 mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
                                    const char*            name)
 {
-    mama_status         staus                   = MAMA_STATUS_UNKNOWN;
-    mamaEntitlementLib  entitlementLib          = NULL;
+    mama_status         status                  = MAMA_STATUS_NOT_FOUND;
+    mamaEntitlementLib* entitlementLib          = NULL;
     LIB_HANDLE          entitlementBridgeHandle = NULL;
     char                createFuncName[256];
 
@@ -2161,7 +2161,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     entitlementLib = (mamaEntitlementLib*)wtable_lookup (gImpl.entitlements.table,
                                                          name);
 
-    if (entitlementLib && entitlementLib->bridge)
+    if (NULL != entitlementLib && entitlementLib->bridge)
     {
         status = MAMA_STATUS_OK;
         mama_log (MAMA_LOG_LEVEL_NORMAL,

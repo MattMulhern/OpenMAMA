@@ -371,4 +371,5 @@ mamaInternal_registerEntitlementFunctions (LIB_HANDLE         bridgeLib,
     char  functionName[256];
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_create, entitlementCreate, entitlementBridge_create);
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_destroy, entitlementDestroy, entitlementBridge_destroy);
+    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_registerSubjectContext, entitlementRegisterSubjectContext, entitlementBridge_registerSubjectContext);
 }

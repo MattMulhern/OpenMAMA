@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA
  */
+#include "imagerequest.h"
 
 #ifndef EntitlementH__
 #define EntitlementH__
@@ -36,7 +37,7 @@ typedef mama_status
 (*entitlementBridge_handleNewSubscription) (entitlementBridge* bridge, SubjectContext* ctx);
 
 
-typedef struct mamaEntitlementBridge
+typedef struct mamaEntitlementBridge_
 { 
     entitlementBridge   mImpl; /* pointer to implementation bridge struct */
 
@@ -45,11 +46,11 @@ typedef struct mamaEntitlementBridge
     entitlementBridge_destroy                   entitlmentDestroy;
 
     /* implementation functions*/
-    entitlementBridge_registerSubjectContext    entitlementRegisterSubjectContext;
-    entitlementBridge_handleNewSubscription     entitlementHandleNewSubscription;
+    entitlementBridge_registerSubjectContext    registerSubjectContext;
+    entitlementBridge_handleNewSubscription     handleNewSubscription;
 
     void*   mClosure;
-} mamaEntitlementBridge_;
+} mamaEntitlementBridge;
 
 
 typedef struct mamaEntitlementSubscription_
@@ -57,6 +58,11 @@ typedef struct mamaEntitlementSubscription_
     mamaEntitlementBridge*    mEntitlementBridge;
 } mamaEntitlementSubscription;
 
+mama_status
+mamaEntitlementBridge_create(mamaEntitlementBridge** bridge);
+
+mama_status
+mamaEntitlementBridge_destroy(mamaEntitlementBridge* bridge);
 
 
 #endif /* EntitlementH__ */

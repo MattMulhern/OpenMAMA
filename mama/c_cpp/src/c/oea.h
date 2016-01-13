@@ -43,6 +43,7 @@ typedef struct oeaEntitlementBridge_
 typedef struct oeaEntitlementSubscriptionHandle_
 {
     // OEA MEMBERS
+    oeaSubscription*    mOeaSubscription;
 } oeaEntitlementSubscriptionHandle;
 
 

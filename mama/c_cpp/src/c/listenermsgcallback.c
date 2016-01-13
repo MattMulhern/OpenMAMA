@@ -36,8 +36,7 @@
 #include "mama/statscollector.h"
 
 #ifdef WITH_ENTITLEMENTS
-#include "mama/entitlement.h"
-//extern oeaClient *   gEntitlementClient;
+#include "entitlement.h"
 #endif /* WITH_ENTITLEMENTS */
 
 
@@ -87,7 +86,7 @@ listenerMsgCallback_create( listenerMsgCallback *result,
 
 #ifdef WITH_ENTITLEMENTS  /* No listener creation without a client. */
     mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-    if( gEntitlementClient == 0 && !(mamaBridgeImpl_areEntitlementsDeferred(bridge)))
+    if( mamaInternal_getEntitlementBridgeCount() == 0 && !(mamaBridgeImpl_areEntitlementsDeferred(bridge)))
     {
         return MAMA_ENTITLE_NO_SERVERS_SPECIFIED;
     }
@@ -670,15 +669,12 @@ checkEntitlement( msgCallback *callback, mamaMsg msg, SubjectContext* ctx )
         ctx->mEntitleCode = value;
         if (ctx->mEntitlementSubscription != NULL)
         {
-            // oeaSubscription_addEntitlementCode (ctx->mOeaSubscription, ctx->mEntitleCode);
-            // oeaSubscription_open (ctx->mOeaSubscription);
-            // result = oeaSubscription_isOpen (ctx->mOeaSubscription);
-            mamaEntitlementBridge* bridge = (mamaEntitlementBridge*) ctx->mEntitlementBridge;
-            status = bridge->registerSubjectContext(ctx);
-            if (MAMA_STATUS_OK != result)
+            mamaEntitlementBridge* entitlementBridge = (mamaEntitlementBridge*) ctx->mEntitlementBridge;
+            mama_status status = entitlementBridge->registerSubjectContext(ctx);
+            if (MAMA_STATUS_OK != status)
             {
                 const char* userSymbol  = NULL;
-                void*       closure = NULL;
+                void*       closure     = NULL;
                 mamaMsgCallbacks *cbs =
                     mamaSubscription_getUserCallbacks (self->mSubscription);
 

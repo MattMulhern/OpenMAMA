@@ -72,6 +72,12 @@ typedef struct mamaBridgeImpl_* mamaBridge;
  */
 typedef struct mamaPayloadBridgeImpl_* mamaPayloadBridge;
 
+/*
+ * The payload bridge implementation required for accessing messages
+ */
+typedef struct mamaEntitlementBridge_* mamaEntitlementBridge;
+
+
 /**
  * @brief Container for holding a mama plugin object
  */

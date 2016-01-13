@@ -30,7 +30,7 @@
 #include "mama/mama.h"
 
 #ifdef WITH_ENTITLEMENTS
-#include <OeaSubscription.h>
+#include <entitlement.h>
 #endif
 
 #if defined(__cplusplus)
@@ -99,8 +99,8 @@ typedef struct SubjectContext_
     int                 mImageCount; 
 #ifdef WITH_ENTITLEMENTS
     //oeaSubscription*    mOeaSubscription;
-    mamaEntitlementSubscriptionHandle*  mEntitlementSubscription;
-    mamaEntitlementBridge*              mEntitlementBridge;
+    mamaEntitlementSubscription*    mEntitlementSubscription;
+    mamaEntitlementBridge*          mEntitlementBridge;
 #endif
 } SubjectContext_;
     

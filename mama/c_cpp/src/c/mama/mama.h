@@ -50,6 +50,7 @@
 #include <mama/subscriptiontype.h>
 #include <mama/quality.h>
 #include <mama/ft.h>
+#include "entitlement.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -138,7 +139,7 @@ extern "C"
     MAMAExpDLL
     extern mama_status
     mama_loadPayloadBridge (mamaPayloadBridge*  bridge,  const char* payloadName);
-    
+
     MAMAExpDLL
     extern mama_status
     mama_loadEntitlementBridge (mamaEntitlementBridge*  bridge,  const char* name);
@@ -357,8 +358,8 @@ extern "C"
     /**
      * Start Mama in the background, with extended parameters.
      *
-     * This method performs the same functionality as mama_startBackground accept it 
-     * provides the facility to pass in a closure. The C++ wrapper layer uses this 
+     * This method performs the same functionality as mama_startBackground accept it
+     * provides the facility to pass in a closure. The C++ wrapper layer uses this
      * version of the function, and stores the MamaStartCallback object in the closure.
      *
      * @param[in] bridgeImpl The bridge specific structure.
@@ -579,14 +580,14 @@ extern "C"
     mama_setBridgeInfoCallback (mamaBridge         bridgeImpl,
                                 bridgeInfoCallback callback);
     /**
-     * Add a user stats collector 
+     * Add a user stats collector
      */
     MAMAExpDLL
     extern mama_status
     mama_addStatsCollector (mamaStatsCollector  statsCollector);
 
     /**
-     * Remove a user stats collector 
+     * Remove a user stats collector
      */
     MAMAExpDLL
     extern mama_status
@@ -597,4 +598,3 @@ extern "C"
 #endif
 
 #endif /* MamaH__ */
-
