@@ -189,7 +189,7 @@ typedef struct mamaEntitlements_
 
     /* Count of number of currently loaded middlewares */
     mama_i32_t          count;
-} mamaMiddlewares;
+} mamaEntitlements;
 
 /**
  * This structure contains data needed to control starting and stopping of
@@ -2893,3 +2893,12 @@ mamaInternal_getPayloadId (const char* payloadName,
 }
 
 
+/**
+ * @brief Return count of entitlementBridges loaded.
+ * @return Integer number of loaded bridges.
+ */
+mama_i32_t
+mamaInternal_getEntitlementBridgeCount ()
+{
+    return gImpl.entitlements.count;
+}

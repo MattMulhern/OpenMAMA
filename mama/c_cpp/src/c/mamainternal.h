@@ -57,7 +57,7 @@ typedef struct mamaPayloadLib_
 {
     mamaEntitlementBridge bridge;
     LIB_HANDLE            library;
-} mamaPayloadLib;
+} mamaEntitlementLib;
 
 
 /**
@@ -164,6 +164,12 @@ mamaInternal_getPayloadId (const char*       payloadName,
                            mamaPayloadBridge payload,
                            char*             payloadChar);
 
+/**
+ * @brief Return count of entitlementBridges loaded.
+ * @return Integer number of loaded bridges.
+ */
+mama_i32_t
+mamaInternal_getEntitlementBridgeCount (void);
 
 #if defined(__cplusplus)
 }
