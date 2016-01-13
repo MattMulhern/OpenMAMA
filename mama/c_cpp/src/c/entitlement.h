@@ -41,7 +41,7 @@ typedef struct mamaEntitlementBridge_
 { 
     entitlementBridge   mImpl; /* pointer to implementation bridge struct */
 
-    /* pure functions, defined in entitlement.c */  //TODO: should these even be here??
+    /* pure functions, defined in entitlement.c */
     entitlementBridge_create                    entitlementCreate;
     entitlementBridge_destroy                   entitlmentDestroy;
 
@@ -50,7 +50,7 @@ typedef struct mamaEntitlementBridge_
     entitlementBridge_handleNewSubscription     handleNewSubscription;
 
     void*   mClosure;
-} mamaEntitlementBridge;
+} * mamaEntitlementBridge;
 
 
 typedef struct mamaEntitlementSubscription_
@@ -58,11 +58,15 @@ typedef struct mamaEntitlementSubscription_
     mamaEntitlementBridge*    mEntitlementBridge;
 } mamaEntitlementSubscription;
 
-mama_status
-mamaEntitlementBridge_create(mamaEntitlementBridge** bridge);
+/*Called when loading/creating a bridge */
+typedef mama_status
+(*entitlementBridge_init) (mamaEntitlementBridge bridge);
 
 mama_status
-mamaEntitlementBridge_destroy(mamaEntitlementBridge* bridge);
+mamaEntitlementBridge_create(mamaEntitlementBridge* bridge);
+
+mama_status
+mamaEntitlementBridge_destroy(mamaEntitlementBridge bridge);
 
 
 #endif /* EntitlementH__ */

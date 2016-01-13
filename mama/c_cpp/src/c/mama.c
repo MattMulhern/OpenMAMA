@@ -60,7 +60,7 @@
 extern void initReservedFields (void);
 
 
-mamaEntitlementBridge*    gEntitlementBridge;
+mamaEntitlementBridge    gEntitlementBridge;
 mamaEntitlementCallbacks  gEntitlementCallbacks;
 static const char*        gServerProperty     = NULL;
 //static const char*        gServers[MAX_ENTITLEMENT_SERVERS];
@@ -239,7 +239,7 @@ mama_status
 mama_loadPayloadBridgeInternal  (mamaPayloadBridge* impl,
                                  const char*        payloadName);
 mama_status
-mama_loadEntitlementBridgeInternal  (mamaEntitlementBridge* bridge,
+mama_loadEntitlementBridgeInternal  (mamaEntitlementBridge bridge,
                                  const char*        name);
 
 /*  Description :   This function will free any memory associated with a
@@ -1833,7 +1833,7 @@ mama_loadPayloadBridge (mamaPayloadBridge* impl,
 }
 
 mama_status
-mama_loadEntitlementBridge (mamaEntitlementBridge* bridge,
+mama_loadEntitlementBridge (mamaEntitlementBridge bridge,
                          const char*        name)
 {
     return mama_loadEntitlementBridgeInternal (bridge, name);
@@ -2139,14 +2139,17 @@ error_handling_unlock:
 }
 
 mama_status
-mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
+mama_loadEntitlementBridgeInternal(mamaEntitlementBridge bridge,
                                    const char*            name)
 {
     mama_status         status                  = MAMA_STATUS_NOT_FOUND;
     mamaEntitlementLib* entitlementLib          = NULL;
-    LIB_HANDLE          entitlementBridgeHandle = NULL;
-    char                createFuncName[256];
-
+    LIB_HANDLE          entitlementLibHandle    = NULL;
+    char                initFuncName[256];
+    char                entImplName[256];
+    void*               vp                      = NULL;
+    entitlementBridge_init initFunc             = NULL;
+    mamaEntitlementBridge entBridge             = NULL;
     if (!bridge || !name)
     {
         return MAMA_STATUS_NULL_ARG;
@@ -2158,7 +2161,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
      */
     wthread_static_mutex_lock (&gImpl.myLock);
 
-    entitlementLib = (mamaEntitlementLib*)wtable_lookup (gImpl.entitlements.table,
+    entitlementLib = (mamaEntitlementLib*) wtable_lookup (gImpl.entitlements.table,
                                                          name);
 
     if (NULL != entitlementLib && entitlementLib->bridge)
@@ -2170,7 +2173,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
                   name);
 
         /* Return the existing payload bridge implementation */
-        *impl = entitlementLib->bridge;
+        entBridge = entitlementLib->bridge;
         goto error_handling_unlock;
     }
 
@@ -2188,11 +2191,11 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         goto error_handling_unlock;
     }
 
-    snprintf (name, 256, "mama%simpl", name);
+    snprintf (entImplName, 256, "mama%simpl", name);
 
-    entitlementBridgeHandle = openSharedLib (name, NULL);
+    entitlementLibHandle = openSharedLib (name, NULL);
 
-    if (!entitlementBridgeHandle)
+    if (!entitlementLibHandle)
     {
         status = MAMA_STATUS_NO_BRIDGE_IMPL;
         mama_log (MAMA_LOG_LEVEL_ERROR,
@@ -2226,7 +2229,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
      * we can use the function search to register various payload functions
      */
     status = mamaInternal_registerEntitlementFunctions (entitlementLibHandle,
-                                                        impl,
+                                                        entBridge,
                                                         name);
 
     if (MAMA_STATUS_OK != status)
@@ -2242,7 +2245,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     entitlementLib->bridge        = *(mamaEntitlementBridge*)bridge;
     entitlementLib->library       = entitlementLibHandle;
 
-    status = wtable_insert (gImpl.entitlemts.table,
+    status = wtable_insert (gImpl.entitlements.table,
                             name,
                             (void*)entitlementLib);
 

@@ -21,8 +21,9 @@
 
 #import "entitlement.h"
 
+
 mama_status
-mamaEntitlementBridge_create(mamaEntitlementBridge** bridge)
+mamaEntitlementBridge_create(mamaEntitlementBridge* bridge)
 {
     mamaEntitlementBridge* impl = NULL;
     impl = malloc(sizeof(mamaEntitlementBridge));
@@ -32,7 +33,7 @@ mamaEntitlementBridge_create(mamaEntitlementBridge** bridge)
 }
 
 mama_status
-mamaEntitlementBridge_destroy(mamaEntitlementBridge** bridge)
+mamaEntitlementBridge_destroy(mamaEntitlementBridge bridge)
 {
     if (bridge)
     {

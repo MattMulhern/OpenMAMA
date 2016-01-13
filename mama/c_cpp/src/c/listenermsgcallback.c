@@ -33,6 +33,7 @@
 #include "mama/statfields.h"
 #include "msgimpl.h"
 #include "queueimpl.h"
+#include "mama/types.h"
 #include "mama/statscollector.h"
 
 #ifdef WITH_ENTITLEMENTS
@@ -669,7 +670,7 @@ checkEntitlement( msgCallback *callback, mamaMsg msg, SubjectContext* ctx )
         ctx->mEntitleCode = value;
         if (ctx->mEntitlementSubscription != NULL)
         {
-            mamaEntitlementBridge* entitlementBridge = (mamaEntitlementBridge*) ctx->mEntitlementBridge;
+            mamaEntitlementBridge entitlementBridge = ctx->mEntitlementBridge;
             mama_status status = entitlementBridge->registerSubjectContext(ctx);
             if (MAMA_STATUS_OK != status)
             {

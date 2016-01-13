@@ -142,7 +142,7 @@ extern "C"
 
     MAMAExpDLL
     extern mama_status
-    mama_loadEntitlementBridge (mamaEntitlementBridge*  bridge,  const char* name);
+    mama_loadEntitlementBridge (mamaEntitlementBridge  bridge,  const char* name);
 
     /** Load the bridge specified by middleware string using the path specified by the user.
      * If the bridge has already been loaded then the existing bridge instance

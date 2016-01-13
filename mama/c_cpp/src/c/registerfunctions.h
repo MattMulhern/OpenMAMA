@@ -37,7 +37,7 @@ mamaInternal_registerPayloadFunctions (LIB_HANDLE         bridgeLib,
 
 mama_status
 mamaInternal_registerEntitlementFunctions (LIB_HANDLE             entitlementLib,
-                                           mamaEntitlementBridge* bridge,
+                                           mamaEntitlementBridge  bridge,
                                            const char*            name);
 
 

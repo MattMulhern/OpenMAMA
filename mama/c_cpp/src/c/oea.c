@@ -54,7 +54,7 @@ void entitlementCheckingSwitchCallback (oeaClient*,
 
 
 mama_status
-oea_EntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
+oeaEntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
 {
     //do stuff here! :)
     // oeaSubscription_addEntitlementCode (ctx->mOeaSubscription, ctx->mEntitleCode);
