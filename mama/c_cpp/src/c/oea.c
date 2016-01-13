@@ -84,6 +84,19 @@ oeaEntitlementBridge_create(entitlementBridge* bridge)
 }
 
 
+mama_status
+oeaEntitlementBridge_destroy(entitlementBridge* bridge)
+{
+    if (NULL != bridge)
+    {
+        if (bridge.mOeaClient)
+        {
+            oeaClient_destroy (entClient);
+        }
+        free(bridge);
+    }
+}
+
 
 mama_status
 oeaEntitlementBridge_init(entitlementBridge* bridge)
@@ -247,7 +260,7 @@ oeaEntitlementBridge_handleNewSubscription(entitlementBridge bridge, subjectCont
 {
     oeaEntitlementBridge* impl = (oeaEntitlementBridge*) bridge;
     oeaStatus status;
-    ctx->mEntitlementSubscription = oeaClient_newSubscription(&status, bridge->mOeaClient);
+    ctx->mEntitlementSubscription = oeaClient_newSubscription(&status, bridge->mImpl->mOeaClient);
     if (OEA_STATUS_OK != status)
     {
         return MAMA_STATUS_NOT_ENTITLED; //TODO: Is this the right status to return?
