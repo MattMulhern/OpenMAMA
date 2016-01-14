@@ -668,7 +668,7 @@ checkEntitlement( msgCallback *callback, mamaMsg msg, SubjectContext* ctx )
             return 1;
         }
         ctx->mEntitleCode = value;
-        if (ctx->mEntitlementSubscription != NULL)
+        if (ctx->mEntitlementBridge != NULL)
         {
             mamaEntitlementBridge entitlementBridge = ctx->mEntitlementBridge;
             mama_status status = entitlementBridge->registerSubjectContext(ctx);

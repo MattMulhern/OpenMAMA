@@ -256,7 +256,7 @@ oeaEntitlmentBridge_parseServersProperty(entitlementBridge* bridge)
 
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(entitlementBridge bridge, subjectContext ctx)
+oeaEntitlementBridge_handleNewSubscription(subjectContext ctx)
 {
     oeaEntitlementBridge* impl = (oeaEntitlementBridge*) bridge;
     oeaStatus status;
@@ -267,4 +267,18 @@ oeaEntitlementBridge_handleNewSubscription(entitlementBridge bridge, subjectCont
     }
     MAMA_STATUS_BASE
     return MAMA_STATUS_OK;
+}
+
+mama_status
+oeaEntitlementBridge_setIsSnapshot(oeaEntitlementSubscriptionHandle handle, int isSnapshot)
+{
+    oeaSubscription_setIsSnapshot(handle.mOeaSubscription, isSnapshot);
+}
+
+int
+oeaEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject)
+{
+    oeaSubscription_setSubject (handle->mOeaSubscription, subject);
+    return oeaSubscription_isAllowed (handle->mOeaSubscription); 
+
 }

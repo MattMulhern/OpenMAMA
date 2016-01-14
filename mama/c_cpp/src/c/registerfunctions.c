@@ -362,14 +362,16 @@ mamaInternal_registerPayloadFunctions (LIB_HANDLE         bridgeLib,
  * Register function pointers associated with a specific entitlement.
  */
 mama_status
-mamaInternal_registerEntitlementFunctions (LIB_HANDLE         bridgeLib,
-                                           mamaEntitlementBridge* bridge,
-                                           const char*        name)
+mamaInternal_registerEntitlementFunctions (LIB_HANDLE               bridgeLib,
+                                           mamaEntitlementBridge    bridge,
+                                           const char*              name)
 {
     mama_status status  = MAMA_STATUS_OK;
     void* result        = NULL;
     char  functionName[256];
-    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_create, entitlementCreate, entitlementBridge_create);
-    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_destroy, entitlementDestroy, entitlementBridge_destroy);
-    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_registerSubjectContext, entitlementRegisterSubjectContext, entitlementBridge_registerSubjectContext);
+    REGISTER_ENTITLEMENT_BRIDGE_FUNCTION (EntitlementBridge_create,                 entitlementCreate,          entitlementBridge_create);
+    REGISTER_ENTITLEMENT_BRIDGE_FUNCTION (EntitlementBridge_destroy,                entitlementDestroy,         entitlementBridge_destroy);
+    REGISTER_ENTITLEMENT_BRIDGE_FUNCTION (EntitlementBridge_registerSubjectContext, registerSubjectContext,     entitlementBridge_registerSubjectContext);
+    REGISTER_ENTITLEMENT_BRIDGE_FUNCTION (EntitlementBridge_setIsSnapshot,          setIsSnapshot,              entitlementBridge_setIsSnapshot);
+    REGISTER_ENTITLEMENT_BRIDGE_FUNCTION (EntitlementBridge_isAllowed,              isAllowed,                  entitlementBridge_isAllowed);
 }

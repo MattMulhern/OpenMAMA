@@ -21,6 +21,21 @@
 
 #import "entitlement.h"
 
+mama_status
+mamaEntitlementSubscription_create(mamaEntitlementSubscription* subscription)
+{
+    //TODO: check where this should actually be used!!
+    mamaEntitlementSubscription sub = malloc(sizeof(mamaEntitlementSubscription));
+    *subscription = sub;
+    return MAMA_STATUS_OK;
+}
+
+mama_status
+mamaEntitlementSubscription_destroy(mamaEntitlementSubscription subscription)
+{
+    //TODO: what needs free'd here?
+    return MAMA_STATUS_NOT_IMPL;
+}
 
 mama_status
 mamaEntitlementBridge_create(mamaEntitlementBridge* bridge)

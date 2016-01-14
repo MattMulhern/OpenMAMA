@@ -26,16 +26,23 @@
 typedef void* entitlementBridge;
 typedef void* entitlementSubscriptionHandle;
 
+typedef struct mamaEntitlementBridge_* mamaEntitlementBridge;
+typedef struct mamaEntitlementSubscription_ mamaEntitlementSubscription;
 
 typedef mama_status
 (*entitlementBridge_create) (entitlementBridge* bridge);
 typedef mama_status
 (*entitlementBridge_destroy) (entitlementBridge* bridge);
 typedef mama_status
+(*entitlementBridge_init) (mamaEntitlementBridge bridge);
+typedef mama_status
 (*entitlementBridge_registerSubjectContext) (SubjectContext* ctx);
 typedef mama_status
-(*entitlementBridge_handleNewSubscription) (entitlementBridge* bridge, SubjectContext* ctx);
-
+(*entitlementBridge_handleNewSubscription) (SubjectContext* ctx);
+typedef mama_status
+(*entitlementBridge_setIsSnapshot) (mamaEntitlementSubscription* handle, int isSnapshot);
+typedef int
+(*entitlementBridge_isAllowed) (mamaEntitlementSubscription* handle, char* subject);
 
 typedef struct mamaEntitlementBridge_
 { 
@@ -43,30 +50,35 @@ typedef struct mamaEntitlementBridge_
 
     /* pure functions, defined in entitlement.c */
     entitlementBridge_create                    entitlementCreate;
-    entitlementBridge_destroy                   entitlmentDestroy;
+    entitlementBridge_destroy                   entitlementDestroy;
 
     /* implementation functions*/
     entitlementBridge_registerSubjectContext    registerSubjectContext;
     entitlementBridge_handleNewSubscription     handleNewSubscription;
+    entitlementBridge_setIsSnapshot             setIsSnapshot;
+    entitlementBridge_isAllowed                 isAllowed;
 
     void*   mClosure;
-} * mamaEntitlementBridge;
+};
 
 
 typedef struct mamaEntitlementSubscription_
 {
     mamaEntitlementBridge*    mEntitlementBridge;
-} mamaEntitlementSubscription;
+};
 
 /*Called when loading/creating a bridge */
-typedef mama_status
-(*entitlementBridge_init) (mamaEntitlementBridge bridge);
 
 mama_status
-mamaEntitlementBridge_create(mamaEntitlementBridge* bridge);
+mamaEntitlementSubscription_create (mamaEntitlementSubscription* subscription);
+mama_status
+mamaEntitlementSubscription_destroy (mamaEntitlementSubscription* subscription);
 
 mama_status
-mamaEntitlementBridge_destroy(mamaEntitlementBridge bridge);
+mamaEntitlementBridge_create (mamaEntitlementBridge* bridge);
+
+mama_status
+mamaEntitlementBridge_destroy (mamaEntitlementBridge bridge);
 
 
 #endif /* EntitlementH__ */

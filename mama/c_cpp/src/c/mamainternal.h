@@ -26,7 +26,7 @@
 #include "wombat/wtable.h"
 #include "mama/types.h"
 #include "mama/status.h"
-//#include "entitlement.h"
+#include "entitlement.h"
 
 #if defined(__cplusplus)
 extern "C"

@@ -36,9 +36,9 @@ mamaInternal_registerPayloadFunctions (LIB_HANDLE         bridgeLib,
                                        const char*        name);
 
 mama_status
-mamaInternal_registerEntitlementFunctions (LIB_HANDLE             entitlementLib,
-                                           mamaEntitlementBridge  bridge,
-                                           const char*            name);
+mamaInternal_registerEntitlementFunctions (LIB_HANDLE               bridgeLib,
+                                           mamaEntitlementBridge    bridge,
+                                           const char*              name);
 
 
 /**
@@ -62,6 +62,24 @@ do {                                                                            
                                                                                 \
     if (NULL != result) {                                                       \
         (*bridge)->FUNCIMPLNAME = *(FUNCIMPLTYPE*)&result;                      \
+        result = NULL;                                                          \
+    } else {                                                                    \
+        mama_log (MAMA_LOG_LEVEL_ERROR,                                         \
+                  "mamaInternal_registerBridgeFunctions: "                      \
+                  "Cannot load bridge, does not implement required function: [%s]",\
+                  functionName);                                                \
+        status = MAMA_STATUS_PLATFORM;                                          \
+        return status;                                                          \
+    }                                                                           \
+} while (0)
+
+#define REGISTER_ENTITLEMENT_BRIDGE_FUNCTION(FUNCSTRINGNAME, FUNCIMPLNAME, FUNCIMPLTYPE)    \
+do {                                                                            \
+    snprintf (functionName, 256, "%s"#FUNCSTRINGNAME, name);                    \
+    result = loadLibFunc (bridgeLib, functionName);                             \
+                                                                                \
+    if (NULL != result) {                                                       \
+        (bridge)->FUNCIMPLNAME = *(FUNCIMPLTYPE*)&result;                      \
         result = NULL;                                                          \
     } else {                                                                    \
         mama_log (MAMA_LOG_LEVEL_ERROR,                                         \
