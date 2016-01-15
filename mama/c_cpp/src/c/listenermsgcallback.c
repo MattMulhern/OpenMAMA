@@ -37,7 +37,7 @@
 #include "mama/statscollector.h"
 
 #ifdef WITH_ENTITLEMENTS
-#include "entitlement.h"
+#include "entitlementinternal.h"
 #endif /* WITH_ENTITLEMENTS */
 
 

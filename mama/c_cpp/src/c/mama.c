@@ -53,7 +53,7 @@
 #define MAMA_PROPERTY_BRIDGE "mama.bridge.provider"
 #define DEFAULT_STATS_INTERVAL 60
 
-#include "entitlement.h"
+#include "entitlementinternal.h"
 #define MAX_USER_NAME_STR_LEN 64
 #define MAX_HOST_NAME_STR_LEN 64
 

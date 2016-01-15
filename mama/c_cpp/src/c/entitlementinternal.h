@@ -19,7 +19,6 @@
  * 02110-1301 USA
  */
 #include "imagerequest.h"
-#include <mama/entitlement.h>
 
 #ifndef EntitlementInternalH__
 #define EntitlementInternalH__

@@ -29,10 +29,6 @@
 #include "dqstrategy.h"
 #include "mama/mama.h"
 
-#ifdef WITH_ENTITLEMENTS
-//#include <entitlement.h>
-#endif
-
 #if defined(__cplusplus)
 extern "C" {
 #endif

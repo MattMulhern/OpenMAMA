@@ -50,7 +50,7 @@
 #include <mama/subscriptiontype.h>
 #include <mama/quality.h>
 #include <mama/ft.h>
-#include "entitlement.h"
+#include "mama/entitlement.h"
 
 #if defined(__cplusplus)
 extern "C"
