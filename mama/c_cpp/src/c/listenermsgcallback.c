@@ -668,8 +668,7 @@ checkEntitlement( msgCallback *callback, mamaMsg msg, SubjectContext* ctx )
         ctx->mEntitleCode = value;
         if (ctx->mEntitlementBridge != NULL)
         {
-            mamaEntitlementBridge entitlementBridge = ctx->mEntitlementBridge;
-            mama_status status = entitlementBridge->registerSubjectContext(ctx);
+            mama_status status = ctx->mEntitlementBridge->registerSubjectContext(ctx);
             if (MAMA_STATUS_OK != status)
             {
                 const char* userSymbol  = NULL;

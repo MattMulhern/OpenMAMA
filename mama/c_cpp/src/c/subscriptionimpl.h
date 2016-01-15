@@ -95,7 +95,7 @@ typedef struct SubjectContext_
     int                 mImageCount; 
 #ifdef WITH_ENTITLEMENTS
     //oeaSubscription*    mOeaSubscription;
-    mamaEntitlementSubscription*     mEntitlementSubscription;
+    mamaEntitlementSubscription*    mEntitlementSubscription;
     mamaEntitlementBridge           mEntitlementBridge;
 #endif
 } SubjectContext_;

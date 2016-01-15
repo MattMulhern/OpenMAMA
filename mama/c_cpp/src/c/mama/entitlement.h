@@ -19,9 +19,8 @@
  * 02110-1301 USA
  */
 
-#ifndef EntitlementInternalH__
-#define EntitlementInternalH__
-
+#ifndef EntitlementH__
+#define EntitlementH__
 #if defined(__cplusplus)
 extern "C"
 {
@@ -34,4 +33,4 @@ typedef struct mamaEntitlementSubscription_ mamaEntitlementSubscription;
 }
 #endif
 
-#endif /* EntitlementInternalH__ */
+#endif /* EntitlementH__ */
