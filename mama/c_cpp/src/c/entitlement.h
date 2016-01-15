@@ -19,9 +19,10 @@
  * 02110-1301 USA
  */
 #include "imagerequest.h"
+#include <mama/entitlement.h>
 
-#ifndef EntitlementH__
-#define EntitlementH__
+#ifndef EntitlementInternalH__
+#define EntitlementInternalH__
 
 typedef void* entitlementBridge;
 typedef void* entitlementSubscriptionHandle;
@@ -59,13 +60,13 @@ typedef struct mamaEntitlementBridge_
     entitlementBridge_isAllowed                 isAllowed;
 
     void*   mClosure;
-};
+}mamaEntitlementBridge_;
 
 
 typedef struct mamaEntitlementSubscription_
 {
     mamaEntitlementBridge*    mEntitlementBridge;
-};
+}mamaEntitlementSubscription_;
 
 /*Called when loading/creating a bridge */
 
@@ -81,4 +82,4 @@ mama_status
 mamaEntitlementBridge_destroy (mamaEntitlementBridge bridge);
 
 
-#endif /* EntitlementH__ */
+#endif /* EntitlementInternalH__ */

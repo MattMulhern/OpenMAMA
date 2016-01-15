@@ -238,6 +238,11 @@ mama_loadBridgeWithPathInternal (mamaBridge* impl,
 mama_status
 mama_loadPayloadBridgeInternal  (mamaPayloadBridge* impl,
                                  const char*        payloadName);
+
+mama_status
+mama_loadEntitlementBridge (mamaEntitlementBridge  bridge,  const char* name);
+
+
 mama_status
 mama_loadEntitlementBridgeInternal  (mamaEntitlementBridge bridge,
                                  const char*        name);
