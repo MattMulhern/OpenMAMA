@@ -12,6 +12,7 @@ InstMamaInclude = \
 	mama/config.h 
 	mama/datetime.h 
 	mama/dictionary.h 
+	mama/entitlement.h
     mama/error.h 
 	mama/fielddesc.h 
 	mama/inbox.h 

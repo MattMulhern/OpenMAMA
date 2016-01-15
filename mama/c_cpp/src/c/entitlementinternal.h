@@ -23,11 +23,14 @@
 #ifndef EntitlementInternalH__
 #define EntitlementInternalH__
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 typedef void* entitlementBridge;
 typedef void* entitlementSubscriptionHandle;
 
-typedef struct mamaEntitlementBridge_* mamaEntitlementBridge;
-typedef struct mamaEntitlementSubscription_ mamaEntitlementSubscription;
 
 typedef mama_status
 (*entitlementBridge_create) (entitlementBridge* bridge);
@@ -80,5 +83,8 @@ mamaEntitlementBridge_create (mamaEntitlementBridge* bridge);
 mama_status
 mamaEntitlementBridge_destroy (mamaEntitlementBridge bridge);
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* EntitlementInternalH__ */

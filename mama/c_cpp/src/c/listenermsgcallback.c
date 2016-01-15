@@ -36,9 +36,7 @@
 #include "mama/types.h"
 #include "mama/statscollector.h"
 
-#ifdef WITH_ENTITLEMENTS
 #include "entitlementinternal.h"
-#endif /* WITH_ENTITLEMENTS */
 
 
 extern int gGenerateTransportStats;
