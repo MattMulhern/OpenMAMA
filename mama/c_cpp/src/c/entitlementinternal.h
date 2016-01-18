@@ -33,9 +33,9 @@ typedef void* entitlementSubscriptionHandle;
 
 
 typedef mama_status
-(*entitlementBridge_create) (entitlementBridge* bridge);
+(*entitlementBridge_create) (entitlementBridge bridge);
 typedef mama_status
-(*entitlementBridge_destroy) (entitlementBridge* bridge);
+(*entitlementBridge_destroy) (entitlementBridge bridge);
 typedef mama_status
 (*entitlementBridge_init) (mamaEntitlementBridge bridge);
 typedef mama_status
@@ -72,16 +72,6 @@ typedef struct mamaEntitlementSubscription_
 
 /*Called when loading/creating a bridge */
 
-mama_status
-mamaEntitlementSubscription_create (mamaEntitlementSubscription* subscription);
-mama_status
-mamaEntitlementSubscription_destroy (mamaEntitlementSubscription* subscription);
-
-mama_status
-mamaEntitlementBridge_create (mamaEntitlementBridge* bridge);
-
-mama_status
-mamaEntitlementBridge_destroy (mamaEntitlementBridge bridge);
 
 #if defined(__cplusplus)
 }

@@ -19,31 +19,34 @@
  * 02110-1301 USA
  */
 
-#import "entitlement.h"
+#include <mama/mama.h>
+#include <mama/entitlement.h>
+#include <mama/status.h>
+#include <entitlementinternal.h>
 
 mama_status
 mamaEntitlementSubscription_create(mamaEntitlementSubscription* subscription)
 {
     //TODO: check where this should actually be used!!
-    mamaEntitlementSubscription sub = malloc(sizeof(mamaEntitlementSubscription));
-    *subscription = sub;
+    mamaEntitlementSubscription* sub = malloc(sizeof(mamaEntitlementSubscription));
+    subscription = sub;
     return MAMA_STATUS_OK;
 }
 
 mama_status
-mamaEntitlementSubscription_destroy(mamaEntitlementSubscription subscription)
+mamaEntitlementSubscription_destroy(mamaEntitlementSubscription* subscription)
 {
     //TODO: what needs free'd here?
-    return MAMA_STATUS_NOT_IMPL;
+     return MAMA_STATUS_NOT_IMPLEMENTED;
 }
 
 mama_status
-mamaEntitlementBridge_create(mamaEntitlementBridge* bridge)
+mamaEntitlementBridge_create(mamaEntitlementBridge bridge)
 {
-    mamaEntitlementBridge* impl = NULL;
-    impl = malloc(sizeof(mamaEntitlementBridge));
+    mamaEntitlementBridge impl = 0; 
+    impl = malloc(sizeof(mamaEntitlementBridge_));
 
-    *bridge = impl;
+    bridge = impl;
     return MAMA_STATUS_OK;
 }
 
@@ -52,10 +55,11 @@ mamaEntitlementBridge_destroy(mamaEntitlementBridge bridge)
 {
     if (bridge)
     {
-        if (bridge.mImpl)
+        if (bridge->mImpl)
         {
             /* Call bridge implementation destroy method. */
-            impl->destroy(mImpl);
+            mamaEntitlementBridge impl = (mamaEntitlementBridge) bridge->mImpl;
+            impl->entitlementDestroy(bridge);
         }
         free(bridge);
     }

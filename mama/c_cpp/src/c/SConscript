@@ -92,6 +92,7 @@ libmama_sources = \
 	dictionary.c
 	dqstrategy.c
     error.c
+    entitlement.c
 	fielddesc.c
 	imagerequest.c
 	listenermsgcallback.c

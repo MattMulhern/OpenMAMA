@@ -21,6 +21,7 @@
 
 #ifndef EntitlementH__
 #define EntitlementH__
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -28,6 +29,19 @@ extern "C"
 
 typedef struct mamaEntitlementBridge_* mamaEntitlementBridge;
 typedef struct mamaEntitlementSubscription_ mamaEntitlementSubscription;
+
+mama_status
+mamaEntitlementSubscription_create (mamaEntitlementSubscription* subscription);
+
+mama_status
+mamaEntitlementSubscription_destroy (mamaEntitlementSubscription* subscription);
+
+mama_status
+mamaEntitlementBridge_create (mamaEntitlementBridge bridge);
+
+mama_status
+mamaEntitlementBridge_destroy (mamaEntitlementBridge bridge);
+
 
 #if defined(__cplusplus)
 }

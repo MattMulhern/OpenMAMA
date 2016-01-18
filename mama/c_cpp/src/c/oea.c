@@ -85,11 +85,11 @@ oeaEntitlementBridge_create(entitlementBridge* bridge)
 
 
 mama_status
-oeaEntitlementBridge_destroy(entitlementBridge* bridge)
+oeaEntitlementBridge_destroy(entitlementBridge bridge)
 {
     if (NULL != bridge)
     {
-        if (bridge.mOeaClient)
+        if (bridge->mOeaClient)
         {
             oeaClient_destroy (entClient);
         }
