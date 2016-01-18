@@ -54,7 +54,7 @@ void entitlementCheckingSwitchCallback (oeaClient*,
 
 
 mama_status
-oeaEntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
+oeacEntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
 {
     //do stuff here! :)
     // oeaSubscription_addEntitlementCode (ctx->mOeaSubscription, ctx->mEntitleCode);
@@ -66,16 +66,16 @@ oeaEntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
 
 
 mama_status
-oeaEntitlementBridge_create(entitlementBridge* bridge)
+oeacEntitlementBridge_create(entitlementBridge* bridge)
 {
     mama_status           status = MAMA_STATUS_NOT_ENTITLED;
-    oeaEntitlementBridge* impl   = NULL;
+    oeacEntitlementBridge* impl   = NULL;
 
-    impl = malloc(sizeof(oeaEntitlementBridge));
+    impl = malloc(sizeof(oeacEntitlementBridge));
 
     //INITIALIZE_ENTITLEMENT_BRIDGE(bridge, "oea");
 
-    status = oeaEntitlementBridge_init(bridge);
+    status = oeacEntitlementBridge_init(bridge);
 
     if (MAMA_STATUS_OK != status) return status;
 
@@ -85,7 +85,7 @@ oeaEntitlementBridge_create(entitlementBridge* bridge)
 
 
 mama_status
-oeaEntitlementBridge_destroy(entitlementBridge bridge)
+oeacEntitlementBridge_destroy(entitlementBridge bridge)
 {
     if (NULL != bridge)
     {
@@ -99,7 +99,7 @@ oeaEntitlementBridge_destroy(entitlementBridge bridge)
 
 
 mama_status
-oeaEntitlementBridge_init(entitlementBridge* bridge)
+oeacEntitlementBridge_init(entitlementBridge* bridge)
 {
     // Should be an reimplementation of enableEntitlements() previously in mama.c
     const char*     portLowStr                  = NULL;
@@ -201,10 +201,10 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
         }
     }
 
-    /* allocate oeaEntitlementBridge */
-    if (MAMA_STATUS_OK != oeaEntitlementBridge_create(bridge)) return status;
+    /* allocate oeacEntitlementBridge */
+    if (MAMA_STATUS_OK != oeacEntitlementBridge_create(bridge)) return status;
 
-    /* set client in oeaEntitlementBridge struct */
+    /* set client in oeacEntitlementBridge struct */
     bridge->mImpl.mOeaClient = entClient;
 
     return MAMA_STATUS_OK;
@@ -256,9 +256,9 @@ oeaEntitlmentBridge_parseServersProperty(entitlementBridge* bridge)
 
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(subjectContext ctx)
+oeacEntitlementBridge_handleNewSubscription(subjectContext ctx)
 {
-    oeaEntitlementBridge* impl = (oeaEntitlementBridge*) bridge;
+    oeacEntitlementBridge* impl = (oeacEntitlementBridge*) bridge;
     oeaStatus status;
     ctx->mEntitlementSubscription = oeaClient_newSubscription(&status, bridge->mImpl->mOeaClient);
     if (OEA_STATUS_OK != status)
@@ -270,13 +270,13 @@ oeaEntitlementBridge_handleNewSubscription(subjectContext ctx)
 }
 
 mama_status
-oeaEntitlementBridge_setIsSnapshot(oeaEntitlementSubscriptionHandle handle, int isSnapshot)
+oeacEntitlementBridge_setIsSnapshot(oeaEntitlementSubscriptionHandle handle, int isSnapshot)
 {
     oeaSubscription_setIsSnapshot(handle.mOeaSubscription, isSnapshot);
 }
 
 int
-oeaEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject)
+oeacEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject)
 {
     oeaSubscription_setSubject (handle->mOeaSubscription, subject);
     return oeaSubscription_isAllowed (handle->mOeaSubscription); 
