@@ -15,7 +15,7 @@ if 'qpid' in env['middleware']:
     modules.append('qpidmsg') 
 """
 
-modules.append('oeac')
+modules.append('oea')
 
 for m in modules:
    env.SConscript( os.path.join(m,'SConscript'), 'env' )

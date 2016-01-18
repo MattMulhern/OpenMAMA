@@ -1397,7 +1397,7 @@ static void freeCacheCb (
     if (ctx->mEntitlementSubscription != NULL)
     {
         //todo: check we're destroying the right thing here!
-        mamaEntitlementSubscription_destroy (ctx->mEntitlementSubscription);
+        mamaEntitlementSubscription_destroy (*ctx->mEntitlementSubscription);
         ctx->mEntitlementSubscription = NULL;
     }
     #endif
@@ -1451,7 +1451,7 @@ mamaSubscription_cleanup (mamaSubscription subscription)
         if (self->mSubjectContext.mEntitlementSubscription != NULL)
         {
             /* Destroy will also close a subscription if it is open */
-            mamaEntitlementSubscription_destroy (self->mSubjectContext.mEntitlementSubscription);
+            mamaEntitlementSubscription_destroy (*self->mSubjectContext.mEntitlementSubscription);
             self->mSubjectContext.mEntitlementSubscription = NULL;
         }
     }

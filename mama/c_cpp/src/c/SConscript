@@ -166,19 +166,6 @@ libmama_sources = \
 objects = []
 StaticLibs['libmama'] = []
 
-if env['entitled'] == True:
-    InstOeaInclude = [ "{0}/include/oea/OeaClient.h".format(env['entitle_home']),
-                       "{0}/include/oea/OeaSubscription.h".format(env['entitle_home']),
-                       "{0}/include/oea/OeaStatus.h".format(env['entitle_home']) ]
-
-    Alias('install', env.Install('$prefix/include/oea', InstOeaInclude))
-
-    env.Append( 
-        LIBPATH = [ os.path.join(env['entitle_home'],'lib') ],
-        CPPPATH = [ os.path.join(env['entitle_home'],'include/oea') ],
-        LIBS = ['oeac'],
-        CPPDEFINES = ['WITH_ENTITLEMENTS'],
-    )
 
 for s in libmama_sources:
     obj = env.Object(s)
@@ -198,5 +185,6 @@ Alias('install', env.Install('$prefix/include/mama/fieldcache',
 
 env.SConscript('bridge/SConscript', 'env')
 env.SConscript('payload/SConscript', 'env')
+env.SConscript('entitlement/SConscript', 'env')
 
 Clean(lib, 'version.c')

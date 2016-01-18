@@ -37,7 +37,7 @@ typedef mama_status
 typedef mama_status
 (*entitlementBridge_destroy) (entitlementBridge bridge);
 typedef mama_status
-(*entitlementBridge_init) (mamaEntitlementBridge bridge);
+(*entitlementBridge_init) (mamaEntitlementBridge* bridge);
 typedef mama_status
 (*entitlementBridge_registerSubjectContext) (SubjectContext* ctx);
 typedef mama_status
