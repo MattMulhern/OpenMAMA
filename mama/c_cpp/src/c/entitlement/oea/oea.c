@@ -105,7 +105,6 @@ oeaEntitlementBridge_init(entitlementBridge bridge)
     const char*     altIp;
     const char*     site;
     const char**    entitlementServers;
-    //const char**    entitlementServers          = oeaEntitlmentBridge_parseServersProperty();
 
     oeaEntitlementBridge* bridgeImpl = (oeaEntitlementBridge*) bridge;
     const char*     appName;

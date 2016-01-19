@@ -913,7 +913,8 @@ mama_openWithPropertiesCount (const char* path,
         //TODO: mamaEntitlementBridge_destroy() here??
         mama_log(MAMA_LOG_LEVEL_SEVERE,
                  "mama_openWithProperties(): "
-                 "could not load entitlements library.");
+                 "Could not load entitlements library.");
+        
         wthread_static_mutex_unlock (&gImpl.myLock);
         mama_close();
         
@@ -1811,7 +1812,6 @@ mama_status
 mama_loadEntitlementBridge (mamaEntitlementBridge* bridge,
                          const char*        name)
 {
-    mama_log(MAMA_LOG_LEVEL_FINE, "CALLING mama_loadEntitlementBridgeInternal()");
     return mama_loadEntitlementBridgeInternal (bridge, name);
 }
 
@@ -2126,19 +2126,22 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     void*               vp                      = NULL;
     entitlementBridge_init initFunc             = NULL;
     mamaEntitlementBridge* entBridge            = 0;
-    if (!bridge )
-    {
-        mama_log(MAMA_LOG_LEVEL_FINE, "NULL bridge!!");
 
+    status = mamaInternal_init ();
+
+    if (MAMA_STATUS_OK != status)
+    {
+        mama_log (MAMA_LOG_LEVEL_ERROR,
+                  "mama_loadEntitlementBridgeInternal (): "
+                  "Error initialising internal MAMA state. Cannot load entitlements library"
+                  "[%s]", name);
+        return status;
+    }
+
+    if (!bridge || !name)
+    {
         return MAMA_STATUS_NULL_ARG;
     }
-    if (!name)
-    {
-        mama_log(MAMA_LOG_LEVEL_FINE, "NULL name!!");
-
-        return MAMA_STATUS_NULL_ARG;
-    }
-    mama_log(MAMA_LOG_LEVEL_FINE, "mama_loadEntitlementBridgeInternal:");
 
     /* Lock here as we don't want anything else being added to the table
      * until either we've returned the appropriate bridge, or loaded and added
@@ -2160,6 +2163,19 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         /* Return the existing payload bridge implementation */
         *entBridge = entitlementLib->bridge;
         goto error_handling_unlock;
+    }
+    else
+    {
+        entitlementLib = malloc(sizeof(mamaEntitlementLib));
+        if (NULL == entitlementLib)
+        {
+            status = MAMA_STATUS_NOMEM;
+            mama_log(MAMA_LOG_LEVEL_ERROR, 
+                     "mama_loadEntitlementBridgeInternal (): "
+                     "Could not allocate entitlementLib %s.",
+                     name);
+            goto error_handling_unlock;
+        }
     }
 
     /* Once we have checked if the bridge has already been loaded, check if
@@ -2195,7 +2211,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     entBridge   = malloc(sizeof(mamaEntitlementBridge_));
     if (NULL == entBridge)
     {
-        mama_log(MAMA_LOG_LEVEL_SEVERE, 
+        mama_log(MAMA_LOG_LEVEL_ERROR, 
                  "Could not allocate memory for %s entitlement bridge.",
                  name);
 
@@ -2231,24 +2247,36 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     {
         mama_log (MAMA_LOG_LEVEL_ERROR,
                   "mama_loadEntitlementBridgeInternal (): "
-                  "Failed to register  functions for [%s] entitlement bridge.",
+                  "Failed to register functions for [%s] entitlement bridge.",
                   name);
         goto error_handling_close_and_unlock;
     }
 
 
+
     entitlementLib->bridge        = *(mamaEntitlementBridge*)bridge;
     entitlementLib->library       = entitlementLibHandle;
 
-    status = wtable_insert (gImpl.entitlements.table,
+    int insertCheck = wtable_insert (gImpl.entitlements.table,
                             name,
                             (void*)entitlementLib);
 
-    mama_log (MAMA_LOG_LEVEL_FINE,
-              "mama_loadBridge (): "
-              "Successfully loaded %s entitlement bridge from library [%s]",
-              name,
-              entImplName);
+    if (WTABLE_INSERT_SUCCESS != insertCheck)
+    {
+        mama_log (MAMA_LOG_LEVEL_ERROR,
+                  "mama_loadBridge (): "
+                  "Could not insert %s into entitlements table [%d].",
+                  name,
+                  insertCheck);
+    }
+    else
+    {
+        mama_log (MAMA_LOG_LEVEL_ERROR,
+                  "mama_loadBridge (): "
+                  "Successfully loaded %s entitlement bridge from library [%s]",
+                  name,
+                  entImplName);
+    }
 
     wthread_static_mutex_unlock (&gImpl.myLock);
     return status;
@@ -2785,9 +2813,9 @@ mamaInternal_init (void)
     mama_status status = MAMA_STATUS_OK;
 
     enum mamaInternalTableSize {
-        MIDDLEWARE_TABLE_SIZE = 5,
-        PAYLOAD_TABLE_SIZE    = 15,
-        ENTITLEMENT_TABLE_SIZE =5,
+        MIDDLEWARE_TABLE_SIZE  = 5,
+        PAYLOAD_TABLE_SIZE     = 15,
+        ENTITLEMENT_TABLE_SIZE = 5,
     };
 
     /* Lock the gImpl to ensure we don't clobber something else trying to
