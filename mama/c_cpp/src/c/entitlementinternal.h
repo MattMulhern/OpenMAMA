@@ -20,6 +20,8 @@
  */
 #include "imagerequest.h"
 #include <mama/entitlement.h>
+#include <mama/status.h>
+
 #ifndef EntitlementInternalH__
 #define EntitlementInternalH__
 
@@ -33,11 +35,11 @@ typedef void* entitlementSubscriptionHandle;
 
 
 typedef mama_status
-(*entitlementBridge_create) (entitlementBridge bridge);
+(*entitlementBridge_create) (mamaEntitlementBridge bridge);
 typedef mama_status
-(*entitlementBridge_destroy) (entitlementBridge bridge);
+(*entitlementBridge_destroy) (mamaEntitlementBridge bridge);
 typedef mama_status
-(*entitlementBridge_init) (mamaEntitlementBridge* bridge);
+(*entitlementBridge_init) (entitlementBridge bridge);
 typedef mama_status
 (*entitlementBridge_registerSubjectContext) (SubjectContext* ctx);
 typedef mama_status
@@ -49,7 +51,7 @@ typedef int
 
 typedef struct mamaEntitlementBridge_
 { 
-    entitlementBridge   mImpl; /* pointer to implementation bridge struct */
+    entitlementBridge mImpl; /* pointer to implementation bridge struct */
 
     /* pure functions, defined in entitlement.c */
     entitlementBridge_create                    entitlementCreate;

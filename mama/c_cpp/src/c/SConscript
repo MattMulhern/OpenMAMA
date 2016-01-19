@@ -166,6 +166,8 @@ libmama_sources = \
 objects = []
 StaticLibs['libmama'] = []
 
+if env['entitled'] == True:
+    env.Append(CPPDEFINES = ['WITH_ENTITLEMENTS'])
 
 for s in libmama_sources:
     obj = env.Object(s)

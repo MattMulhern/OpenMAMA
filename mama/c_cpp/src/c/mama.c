@@ -225,6 +225,18 @@ static mamaImpl gImpl = {
                             0,                        /* init */
                             WSTATIC_MUTEX_INITIALIZER /* myLock */
                         };
+/* ************************************************************************* */
+/* Callbacks. */
+/* ************************************************************************* */
+
+void MAMACALLTYPE mamaImpl_entitlementDisconnectCallback (
+                            const sessionDisconnectReason  reason,
+                            const char * const             userId,
+                            const char * const             host,
+                            const char * const             appName);
+void MAMACALLTYPE mamaImpl_entitlementUpdatedCallback ();
+void MAMACALLTYPE mamaImpl_entitlementCheckingSwitchCallback (
+                            int isEntitlementsCheckingDisabled);
 
 /* ************************************************************************* */
 /* Private Function Prototypes. */
@@ -886,7 +898,6 @@ mama_openWithPropertiesCount (const char* path,
         wthread_static_mutex_unlock (&gImpl.myLock);
         return MAMA_STATUS_NO_BRIDGE_IMPL;
     }
-
 #ifndef WITH_ENTITLEMENTS
     mama_log (MAMA_LOG_LEVEL_WARN,
                 "\n********************************************************************************\n"
@@ -912,19 +923,6 @@ mama_openWithPropertiesCount (const char* path,
         return result;
     }
 
-    if (result != MAMA_STATUS_OK)
-    {
-        mama_log (MAMA_LOG_LEVEL_SEVERE,
-                  "mama_openWithProperties(): "
-                  "Error establishing entitlements.");
-        wthread_static_mutex_unlock (&gImpl.myLock);
-        mama_close();
-        
-        if (count)
-            *count = gImpl.myRefCount;
-
-        return result;
-    }
 #endif /* WITH_ENTITLEMENTS */
 
     mama_statsInit();
@@ -1752,10 +1750,9 @@ mama_registerEntitlementCallbacks (const mamaEntitlementCallbacks* entitlementCa
     gEntitlementCallbacks = *entitlementCallbacks;
     return MAMA_STATUS_OK;
 }
- /*
-void MAMACALLTYPE entitlementDisconnectCallback (
-                            mamaEntitlementBridge*         bridge,
-                            const OEA_DISCONNECT_REASON    reason,
+ 
+void MAMACALLTYPE mamaImpl_entitlementDisconnectCallback (
+                            const sessionDisconnectReason  reason,
                             const char * const             userId,
                             const char * const             host,
                             const char * const             appName)
@@ -1766,8 +1763,7 @@ void MAMACALLTYPE entitlementDisconnectCallback (
     }
 }
 
-void MAMACALLTYPE entitlementUpdatedCallback (* client,
-                            int openSubscriptionForbidden)
+void MAMACALLTYPE mamaImpl_entitlementUpdatedCallback ()
 {
     if (gEntitlementCallbacks.onEntitlementUpdate != NULL)
     {
@@ -1775,8 +1771,7 @@ void MAMACALLTYPE entitlementUpdatedCallback (* client,
     }
 }
 
-void MAMACALLTYPE entitlementCheckingSwitchCallback (
-                            mamaEntitlementBridge*         bridge,
+void MAMACALLTYPE mamaImpl_entitlementCheckingSwitchCallback (
                             int isEntitlementsCheckingDisabled)
 {
     if (gEntitlementCallbacks.onEntitlementCheckingSwitch != NULL)
@@ -1784,17 +1779,6 @@ void MAMACALLTYPE entitlementCheckingSwitchCallback (
         gEntitlementCallbacks.onEntitlementCheckingSwitch(isEntitlementsCheckingDisabled);
     }
 }
-*/
-//TODO: this will call entitlementBridge_create function.
-// static mama_status
-// enableEntitlements ()
-// {
-//     mama_status status = mamaEntitlementBridge_create(&gEntitlementBridge);
-
-//     //todo: check what else needs initialised here.
-//     //
-//     return status;
-// }
 
 
 MAMADeprecated("mamaInternal_registerBridge has been deprecated, use dynamic loading instead!")
@@ -1827,7 +1811,7 @@ mama_status
 mama_loadEntitlementBridge (mamaEntitlementBridge* bridge,
                          const char*        name)
 {
-    mama_log(MAMA_LOG_LEVEL_FINE, "calling mama_loadEntitlementBridgeInternal()");
+    mama_log(MAMA_LOG_LEVEL_FINE, "CALLING mama_loadEntitlementBridgeInternal()");
     return mama_loadEntitlementBridgeInternal (bridge, name);
 }
 
@@ -2177,7 +2161,6 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         *entBridge = entitlementLib->bridge;
         goto error_handling_unlock;
     }
-        mama_log(MAMA_LOG_LEVEL_FINE, "mama_loadEntitlementBridgeInternal:not yet loaded");
 
     /* Once we have checked if the bridge has already been loaded, check if
      * we've already loaded the maximum number of bridges allowed,
@@ -2192,10 +2175,8 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
                   name);
         goto error_handling_unlock;
     }
-    mama_log(MAMA_LOG_LEVEL_FINE, "mama_loadEntitlementBridgeInternal: Not at max number of allowed bridges.");
 
     snprintf (entImplName, 256, "mama%simpl", name);
-    mama_log(MAMA_LOG_LEVEL_FINE, "mama_loadEntitlementBridgeInternal:Trying to load %s",entImplName);
     entitlementLibHandle = openSharedLib (entImplName, NULL);
 
     if (!entitlementLibHandle)
@@ -2262,6 +2243,12 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     status = wtable_insert (gImpl.entitlements.table,
                             name,
                             (void*)entitlementLib);
+
+    mama_log (MAMA_LOG_LEVEL_FINE,
+              "mama_loadBridge (): "
+              "Successfully loaded %s entitlement bridge from library [%s]",
+              name,
+              entImplName);
 
     wthread_static_mutex_unlock (&gImpl.myLock);
     return status;

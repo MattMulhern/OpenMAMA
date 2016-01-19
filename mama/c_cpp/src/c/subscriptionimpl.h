@@ -93,10 +93,8 @@ typedef struct SubjectContext_
     unsigned short      mInitialArrived;
     char*               mSymbol;
     int                 mImageCount; 
-#ifdef WITH_ENTITLEMENTS
     mamaEntitlementSubscription*    mEntitlementSubscription;
     mamaEntitlementBridge           mEntitlementBridge;
-#endif
 } SubjectContext_;
     
 /* *************************************************** */

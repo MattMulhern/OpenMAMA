@@ -25,36 +25,46 @@
 #include <OeaClient.h>
 #include <OeaStatus.h>
 /* mama */
+#include "mama/mama.h"
+#include "subscriptionimpl.h"
 #include "oea.h"
 #include "subscriptionimpl.h"
- 
+
+const char **
+oeaEntitlmentBridge_parseServersProperty();
+
+
+ const char*     gServers[OEA_MAX_ENTITLEMENT_SERVERS];
+
 #if (OEA_MAJVERSION == 2 && OEA_MINVERSION >= 11) || OEA_MAJVERSION > 2
 
-void MAMACALLTYPE entitlementDisconnectCallback (oeaClient*,
-                                    const OEA_DISCONNECT_REASON,
-                                    const char * const,
-                                    const char * const,
-                                    const char * const);
-void MAMACALLTYPE entitlementUpdatedCallback (oeaClient*,
+void MAMACALLTYPE entitlementDisconnectCallback (oeaClient*     client,
+                                    const OEA_DISCONNECT_REASON reason,
+                                    const char * const          userId,
+                                    const char * const          host,
+                                    const char * const          appName);
+void MAMACALLTYPE entitlementUpdatedCallback (oeaClient* client,
                                  int openSubscriptionForbidden);
-void MAMACALLTYPE entitlementCheckingSwitchCallback (oeaClient*,
+void MAMACALLTYPE entitlementCheckingSwitchCallback (oeaClient* client,
                                         int isEntitlementsCheckingDisabled);
+
 #else
 
-void entitlementDisconnectCallback (oeaClient*,
-                                    const OEA_DISCONNECT_REASON,
-                                    const char * const,
-                                    const char * const,
-                                    const char * const);
+void entitlementDisconnectCallback (oeaClient* client,
+                                    const OEA_DISCONNECT_REASON reason,
+                                    const char * const          userId,
+                                    const char * const          host,
+                                    const char * const          appName);
 void entitlementUpdatedCallback (oeaClient*,
                                  int openSubscriptionForbidden);
 void entitlementCheckingSwitchCallback (oeaClient*,
                                         int isEntitlementsCheckingDisabled);
+
 #endif
 
 
 mama_status
-oeaEntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
+oeaEntitlementBridge_registerSubjectContext(SubjectContext* ctx)
 {
     //do stuff here! :)
     // oeaSubscription_addEntitlementCode (ctx->mOeaSubscription, ctx->mEntitleCode);
@@ -66,40 +76,20 @@ oeaEntitlementBridge_registerSubjectCotext(SubjectContext* ctx)
 
 
 mama_status
-oeaEntitlementBridge_create(entitlementBridge* bridge)
+oeaEntitlementBridge_destroy(mamaEntitlementBridge bridge)
 {
-    mama_status           status = MAMA_STATUS_NOT_ENTITLED;
-    oeaEntitlementBridge* impl   = NULL;
-
-    impl = malloc(sizeof(oeaEntitlementBridge));
-
-    //INITIALIZE_ENTITLEMENT_BRIDGE(bridge, "oea");
-
-    status = oeaEntitlementBridge_init(bridge);
-
-    if (MAMA_STATUS_OK != status) return status;
-
-    *bridge.mImpl = impl;
-    return status;
-}
-
-
-mama_status
-oeaEntitlementBridge_destroy(entitlementBridge bridge)
-{
-    if (NULL != bridge)
+    oeaEntitlementBridge* entBridge = (oeaEntitlementBridge*) bridge->mImpl;
+    if (entBridge->mOeaClient)
     {
-        if (bridge->mOeaClient)
-        {
-            oeaClient_destroy (entClient);
-        }
-        free(bridge);
+        oeaClient_destroy (entBridge->mOeaClient);
     }
+    free(bridge);
+    return MAMA_STATUS_OK;
 }
 
 
 mama_status
-oeaEntitlementBridge_init(entitlementBridge* bridge)
+oeaEntitlementBridge_init(entitlementBridge bridge)
 {
     // Should be an reimplementation of enableEntitlements() previously in mama.c
     const char*     portLowStr                  = NULL;
@@ -114,7 +104,19 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
     const char*     altUserId;
     const char*     altIp;
     const char*     site;
-    const char*     entitlementServers[OEA_MAX_ENTITLEMENT_SERVERS];
+    const char**    entitlementServers;
+    //const char**    entitlementServers          = oeaEntitlmentBridge_parseServersProperty();
+
+    oeaEntitlementBridge* bridgeImpl = (oeaEntitlementBridge*) bridge;
+    const char*     appName;
+    mama_status     status;
+
+    status = mama_getApplicationClassName (&appName);
+    if (MAMA_STATUS_OK != status )
+    {
+        mama_log(MAMA_LOG_LEVEL_ERROR, "Could not get application name.");
+        return status;
+    }
 
     oeaClient* entClient;
     if (entClient != 0)
@@ -122,7 +124,6 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
         oeaClient_destroy (entClient);
         entClient = 0;
     }
-
     if (NULL == (entitlementServers = oeaEntitlmentBridge_parseServersProperty()))
     {
         return MAMA_ENTITLE_NO_SERVERS_SPECIFIED;
@@ -165,7 +166,7 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
                                 site,
                                 portLow,
                                 portHigh,
-                                servers,
+                                entitlementServers,
                                 size);
 
     if (entitlementStatus != OEA_STATUS_OK)
@@ -190,7 +191,7 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
             return entitlementStatus;
         }
 
-        if (OEA_STATUS_OK != (entitlementStatus = oeaClient_setApplicationId (entClient, appContext.myApplicationName)))
+        if (OEA_STATUS_OK != (entitlementStatus = oeaClient_setApplicationId (entClient, appName)))
         {
             return entitlementStatus;
         }
@@ -201,24 +202,22 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
         }
     }
 
-    /* allocate oeaEntitlementBridge */
-    if (MAMA_STATUS_OK != oeaEntitlementBridge_create(bridge)) return status;
-
     /* set client in oeaEntitlementBridge struct */
-    bridge->mImpl.mOeaClient = entClient;
+    bridgeImpl->mOeaClient= entClient;
 
     return MAMA_STATUS_OK;
 }
 
+
 const char **
-oeaEntitlmentBridge_parseServersProperty(entitlementBridge* bridge)
+oeaEntitlmentBridge_parseServersProperty()
 {
     char *ptr;
     int idx = 0;
     const char*     serverProperty = mama_getProperty(OEA_SERVER_PROPERTY);
-    const char*     servers[OEA_MAX_ENTITLEMENT_SERVERS];
 
-    memset (servers, 0, sizeof(servers));
+
+    memset (gServers, 0, sizeof(gServers));
 
     if (NULL == serverProperty)
     {
@@ -234,12 +233,12 @@ oeaEntitlmentBridge_parseServersProperty(entitlementBridge* bridge)
 
     while( idx < OEA_MAX_ENTITLEMENT_SERVERS - 1 )
     {
-        servers[idx] = strtok_r (idx == 0 ? (char *)serverProperty : NULL
+        gServers[idx] = strtok_r (idx == 0 ? (char *)serverProperty : NULL
                                   , ",",
                                   &ptr);
 
 
-        if (servers[idx++] == NULL) /* last server parsed */
+        if (gServers[idx++] == NULL) /* last server parsed */
         {
             break;
         }
@@ -248,24 +247,27 @@ oeaEntitlmentBridge_parseServersProperty(entitlementBridge* bridge)
         {
             mama_log (MAMA_LOG_LEVEL_NORMAL,
                       "Parsed entitlement server: %s",
-                      servers[idx-1]);
+                      gServers[idx-1]);
         }
     }
-    return servers;
+    return gServers;
 }
 
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(subjectContext ctx)
+oeaEntitlementBridge_handleNewSubscription(SubjectContext ctx)
 {
-    oeaEntitlementBridge* impl = (oeaEntitlementBridge*) bridge;
+    // oeaEntitlementBridge* impl = (oeaEntitlementBridge*) bridge;
+    mamaEntitlementBridge bridge    = (mamaEntitlementBridge) ctx.mEntitlementBridge;
+    oeaEntitlementBridge*  bridgeImpl = (oeaEntitlementBridge*) bridge->mImpl;
+    //oeaEntitlementBridge* bridgeImpl = (oeaEntitlementBridge*) ctx.mEntitlementBridge.mImpl;
     oeaStatus status;
-    ctx->mEntitlementSubscription = oeaClient_newSubscription(&status, bridge->mImpl->mOeaClient);
+
+    ctx.mEntitlementSubscription = oeaClient_newSubscription(&status, bridgeImpl->mOeaClient);
     if (OEA_STATUS_OK != status)
     {
         return MAMA_STATUS_NOT_ENTITLED; //TODO: Is this the right status to return?
     }
-    MAMA_STATUS_BASE
     return MAMA_STATUS_OK;
 }
 
@@ -278,7 +280,36 @@ oeaEntitlementBridge_setIsSnapshot(oeaEntitlementSubscriptionHandle handle, int 
 int
 oeaEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject)
 {
-    oeaSubscription_setSubject (handle->mOeaSubscription, subject);
-    return oeaSubscription_isAllowed (handle->mOeaSubscription); 
+    oeaSubscription_setSubject (handle.mOeaSubscription, subject);
+    return oeaSubscription_isAllowed (handle.mOeaSubscription); 
 
 }
+
+
+void
+entitlementDisconnectCallback (oeaClient*                   client,
+                               const OEA_DISCONNECT_REASON  reason,
+                               const char * const           userId,
+                               const char * const           host,
+                               const char * const           appName)
+{
+    mamaImpl_entitlementDisconnectCallback(reason, userId, host, appName);
+}
+
+void
+entitlementUpdatedCallback (oeaClient* client,
+                            int openSubscriptionForbidden)
+{
+    mamaImpl_entitlementUpdatedCallback();
+}
+
+void
+entitlementCheckingSwitchCallback (oeaClient*   client,
+                                   int isEntitlementsCheckingDisabled)
+{
+    mamaImpl_entitlementCheckingSwitchCallback(isEntitlementsCheckingDisabled);
+}
+
+
+
+

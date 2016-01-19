@@ -49,10 +49,8 @@
 #include "queueimpl.h"
 #include "property.h"
 
-#ifdef WITH_ENTITLEMENTS
 #include "entitlementinternal.h"
 extern mamaEntitlementBridge gEntitlementBridge;
-#endif /* WITH_ENTITLEMENTS */
 
 extern int gGenerateGlobalStats;
 extern int gGenerateQueueStats;
@@ -458,7 +456,6 @@ mamaSubscription_setupBasic (
     {
         self->mSubjectContext.mEntitlementBridge->handleNewSubscription (&(self->mSubjectContext));
     }
-#endif
 
     /*Up from entitlement check based on string compare on symbol*/
     if (!isEntitledToSymbol (source, symbol, self))
@@ -466,6 +463,7 @@ mamaSubscription_setupBasic (
         setSubscInfo (self, transport, root, source, symbol);
         return MAMA_STATUS_NOT_ENTITLED;
     }
+#endif
     
     self->mSubjectContext.mSymbol = copyString (symbol);
     
@@ -2420,9 +2418,6 @@ mamaSubscription_setTransportIndex (
 static int
 isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subscription)
 {
-#ifndef WITH_ENTITLEMENTS 
-    return 1
-#endif
     int result = 0;
     char subject[WOMBAT_SUBJECT_MAX];
 

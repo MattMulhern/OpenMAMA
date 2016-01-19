@@ -402,7 +402,6 @@ extern "C"
     mama_status
     mama_setApplicationClassName (const char* className);
 
-#ifdef WITH_ENTITLEMENTS
     /**
      Entitlement disconnect status codes
      */
@@ -472,7 +471,6 @@ extern "C"
     MAMAExpDLL
     mama_status
     mama_registerEntitlementCallbacks (const mamaEntitlementCallbacks* entitlementCallbacks);
-#endif /*WITH_ENTITLEMENTS*/
 
     /**
      mama_getApplicationName - gets the mama application name
