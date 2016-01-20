@@ -22,6 +22,7 @@
 #include <bridge.h>
 #include <registerfunctions.h>
 #include <payloadbridge.h>
+#include <entitlementinternal.h>
 
 
 /**

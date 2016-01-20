@@ -2125,7 +2125,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     char                entImplName[256];
     void*               vp                      = NULL;
     entitlementBridge_init initFunc             = NULL;
-    mamaEntitlementBridge* entBridge            = 0;
+    mamaEntitlementBridge entBridge            = 0;
 
     status = mamaInternal_init ();
 
@@ -2161,7 +2161,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
                   name);
 
         /* Return the existing payload bridge implementation */
-        *entBridge = entitlementLib->bridge;
+        entBridge = entitlementLib->bridge;
         goto error_handling_unlock;
     }
     else
@@ -2240,7 +2240,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
      * we can use the function search to register various payload functions
      */
     status = mamaInternal_registerEntitlementFunctions (entitlementLibHandle,
-                                                        entBridge,
+                                                        &entBridge,
                                                         name);
 
     if (MAMA_STATUS_OK != status)
