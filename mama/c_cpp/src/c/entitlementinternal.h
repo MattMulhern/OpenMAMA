@@ -69,7 +69,8 @@ typedef struct mamaEntitlementBridge_
 
 typedef struct mamaEntitlementSubscription_
 {
-    mamaEntitlementBridge*    mEntitlementBridge;
+    mamaEntitlementBridge*        mEntitlementBridge;
+    entitlementSubscriptionHandle mImpl;
 }mamaEntitlementSubscription_;
 
 /*Called when loading/creating a bridge */

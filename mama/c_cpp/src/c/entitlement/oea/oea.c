@@ -66,10 +66,21 @@ void entitlementCheckingSwitchCallback (oeaClient*,
 mama_status
 oeaEntitlementBridge_registerSubjectContext(SubjectContext* ctx)
 {
-    //do stuff here! :)
-    // oeaSubscription_addEntitlementCode (ctx->mOeaSubscription, ctx->mEntitleCode);
-    // oeaSubscription_open (ctx->mOeaSubscription);
-    // result = oeaSubscription_isOpen (ctx->mOeaSubscription);
+    mama_log(MAMA_LOG_LEVEL_ERROR, "oeaEntitlementBridge_registerSubjectContext():");
+
+    oeaSubscription*    oeaSub = (oeaSubscription*) ctx->mEntitlementBridge->mImpl;
+
+    oeaSubscription_addEntitlementCode (oeaSub, ctx->mEntitleCode);
+    oeaSubscription_open (oeaSub);
+    int result = oeaSubscription_isOpen (oeaSub);
+
+    if (0 == result)
+    {
+        mama_log(MAMA_LOG_LEVEL_ERROR,
+                 "Could not handle entitlements for new subscription [%s].",
+                 ctx->mSymbol);
+        return MAMA_STATUS_NOT_ENTITLED;
+    }
 
     return MAMA_STATUS_OK;
 }
