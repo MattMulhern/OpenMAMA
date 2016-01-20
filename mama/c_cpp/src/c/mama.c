@@ -181,13 +181,13 @@ typedef struct mamaPayloads_
  */
 typedef struct mamaEntitlements_
 {
-    /* wtable of loaded middlewares, keyed by middleware name */
+    /* wtable of loaded entitlement libraries, keyed by middleware name */
     wtable_t            table;
 
-    /* Array of loaded middleware libraries, indexed by order of load */
+    /* Array of loaded entitlement libraries, indexed by order of load */
     mamaEntitlementLib*  byIndex[MAMA_MAX_ENTITLEMENTS];
 
-    /* Count of number of currently loaded middlewares */
+    /* Count of number of currently loaded entitlement libraries */
     mama_i32_t          count;
 } mamaEntitlements;
 
@@ -2271,8 +2271,10 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     }
     else
     {
+        gImpl.entitlements.count++;
+
         mama_log (MAMA_LOG_LEVEL_ERROR,
-                  "mama_loadBridge (): "
+                  "mama_loadEntitlementBridgeInternal (): "
                   "Successfully loaded %s entitlement bridge from library [%s]",
                   name,
                   entImplName);
