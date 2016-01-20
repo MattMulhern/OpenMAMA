@@ -1,0 +1,46 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import os
+Import('*')
+env = env.Clone()
+
+target = 'libmamaoeaimpl'
+
+"""
+if env['entitled'] == True:
+    InstOeaInclude = [ "{0}/include/oea/OeaClient.h".format(env['entitle_home']),
+                       "{0}/include/oea/OeaSubscription.h".format(env['entitle_home']),
+                       "{0}/include/oea/OeaStatus.h".format(env['entitle_home']) ]
+
+    Alias('install', env.Install('$prefix/include/oea', InstOeaInclude))
+
+    env.Append( 
+        LIBPATH = [  ],
+        CPPPATH = [  ],
+        LIBS = ['oeac'],
+        CPPDEFINES = ['WITH_ENTITLEMENTS'],
+    )
+"""
+includePath = []
+includePath.append(os.path.join(env['entitle_home'],'include/oea'))
+includePath.append('#mama/c_cpp/src/c')
+includePath.append('.')
+
+libPath = []
+libPath.append(os.path.join(env['entitle_home'],'lib'))
+
+env['CCFLAGS'] = [x for x in env['CCFLAGS'] if x != '-pedantic-errors']
+
+env.Append(LIBS=['mama', 'oeac', ], 
+           LIBPATH=libPath,
+           CPPPATH=[includePath])
+
+#env.Append(CFLAGS=['-Werror'])
+
+sources = Glob('*.c')
+
+lib = []
+lib.append(env.SharedLibrary(target, sources))
+lib.append(env.StaticLibrary(target, sources))
+
+Alias('install', env.Install('$libdir', lib))

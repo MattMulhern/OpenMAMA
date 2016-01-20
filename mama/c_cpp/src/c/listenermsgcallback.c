@@ -87,6 +87,9 @@ listenerMsgCallback_create( listenerMsgCallback *result,
     mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
     if( mamaInternal_getEntitlementBridgeCount() == 0 && !(mamaBridgeImpl_areEntitlementsDeferred(bridge)))
     {
+        const char* symbol;
+        mamaSubscription_getSymbol(subscription, &symbol);
+        mama_log(MAMA_LOG_LEVEL_SEVERE, "No entitlement verification method detected, subscription aborted [%s]", symbol);
         return MAMA_ENTITLE_NO_SERVERS_SPECIFIED;
     }
 #endif  /* WITH_ENTITLEMENTS */
