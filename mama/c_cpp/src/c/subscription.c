@@ -53,6 +53,7 @@
 extern int gGenerateGlobalStats;
 extern int gGenerateQueueStats;
 extern int gGenerateTransportStats;
+//extern mamaImpl gImpl;
 
 #define self ( (mamaSubscriptionImpl*)(subscription))
 #define userSymbolFormatted self->mUserSymbol ? self->mUserSymbol : "", \
@@ -455,8 +456,8 @@ mamaSubscription_setupBasic (
         mamaEntitlementBridge entBridge = NULL;
         mama_status status = mamaTransportImpl_getEntitlementBridge(transport, &entBridge);
         mama_log(MAMA_LOG_LEVEL_ERROR, "bridge = %p", entBridge);
-        gImpl.entitlements.byIndex[0].bridge->handleNewSubscription(NULL);
-        // entBridge->handleNewSubscription(&self->mSubjectContext);
+        entBridge->handleNewSubscription(&self->mSubjectContext);
+        //gImpl.entitlements.byIndex[0].bridge->handleNewSubscription(NULL);
         //oeaEntitlementBridge_handleNewSubscription(&self->mSubjectContext);
     }
 

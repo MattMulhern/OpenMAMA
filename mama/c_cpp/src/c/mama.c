@@ -60,7 +60,7 @@
 extern void initReservedFields (void);
 
 
-mamaEntitlementBridge    gEntitlementBridge;
+//mamaEntitlementBridge    gEntitlementBridge;
 mamaEntitlementCallbacks  gEntitlementCallbacks;
 static const char*        gServerProperty     = NULL;
 //static const char*        gServers[MAX_ENTITLEMENT_SERVERS];
@@ -183,11 +183,11 @@ typedef struct mamaPayloads_
  */
 typedef struct mamaEntitlements_
 {
-    /* wtable of loaded entitlement libraries, keyed by middleware name */
+    /* wtable of loaded entitlement libraries, keyed by name */
     wtable_t            table;
 
-    /* Array of loaded entitlement libraries, indexed by order of load */
-    mamaEntitlementLib*  byIndex[MAMA_MAX_ENTITLEMENTS];
+    /* Array of loaded entitlement libraries, indexed by order loaded */
+    mamaEntitlementLib* byIndex[MAMA_MAX_ENTITLEMENTS];
 
     /* Count of number of currently loaded entitlement libraries */
     mama_i32_t          count;
@@ -242,12 +242,11 @@ mama_loadPayloadBridgeInternal  (mamaPayloadBridge* impl,
                                  const char*        payloadName);
 
 mama_status
-mama_loadEntitlementBridge (mamaEntitlementBridge*  bridge,  const char* name);
+mama_loadEntitlementBridge (const char* name);
 
 
 mama_status
-mama_loadEntitlementBridgeInternal  (mamaEntitlementBridge* bridge,
-                                 const char*        name);
+mama_loadEntitlementBridgeInternal  (const char* name);
 
 /*  Description :   This function will free any memory associated with a
  *                  mamaApplicationContext object but will not free the
@@ -898,7 +897,7 @@ mama_openWithPropertiesCount (const char* path,
     /* MMTODO: just loading oea libs here, need to put somethign more dynamic in here 
      * note: mama_loadEntitlementBridge already populates gImpl.entitlements wtable.
      */
-    if (MAMA_STATUS_OK != mama_loadEntitlementBridge(&gEntitlementBridge, "oea"))
+    if (MAMA_STATUS_OK != mama_loadEntitlementBridge("oea"))
     {
         //TODO: mamaEntitlementBridge_destroy() here??
         mama_log(MAMA_LOG_LEVEL_SEVERE,
@@ -1213,13 +1212,14 @@ mama_closeCount (unsigned int* count)
 
     if (!--gImpl.myRefCount)
     {
-#ifdef WITH_ENTITLEMENTS
-        if( gEntitlementBridge != 0 )
-        {
-            mamaEntitlementBridge_destroy (gEntitlementBridge);
-            gEntitlementBridge = 0;
-        }
-#endif /* WITH_ENTITLEMENTS */
+// #ifdef WITH_ENTITLEMENTS
+//         if( gEntitlementBridge != 0 )
+//         {
+//             mamaEntitlementBridge_destroy (gEntitlementBridge);
+//             gEntitlementBridge = 0;
+//         }
+        //TODO: replace this with free'ing ALL entitlement libs
+//#endif /* WITH_ENTITLEMENTS */
 
         wthread_key_delete(last_err_key);
 
@@ -1799,10 +1799,9 @@ mama_loadPayloadBridge (mamaPayloadBridge* impl,
 }
 
 mama_status
-mama_loadEntitlementBridge (mamaEntitlementBridge* bridge,
-                         const char*        name)
+mama_loadEntitlementBridge (const char* name)
 {
-    return mama_loadEntitlementBridgeInternal (bridge, name);
+    return mama_loadEntitlementBridgeInternal (name);
 }
 
 
@@ -2105,8 +2104,7 @@ error_handling_unlock:
 }
 
 mama_status
-mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
-                                   const char*            name)
+mama_loadEntitlementBridgeInternal(const char* name)
 {
     mama_status         status                  = MAMA_STATUS_NOT_FOUND;
     mamaEntitlementLib* entitlementLib          = NULL;
@@ -2115,7 +2113,12 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     char                entImplName[256];
     void*               vp                      = NULL;
     entitlementBridge_init initFunc             = NULL;
-    mamaEntitlementBridge entBridge            = 0;
+    mamaEntitlementBridge  entBridge            = 0;
+
+    if (!entBridge || !name)
+    {
+        return MAMA_STATUS_NULL_ARG;
+    }
 
     status = mamaInternal_init ();
 
@@ -2128,11 +2131,6 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         return status;
     }
 
-    if (!bridge || !name)
-    {
-        return MAMA_STATUS_NULL_ARG;
-    }
-
     /* Lock here as we don't want anything else being added to the table
      * until either we've returned the appropriate bridge, or loaded and added
      * the new one.
@@ -2142,7 +2140,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     entitlementLib = (mamaEntitlementLib*) wtable_lookup (gImpl.entitlements.table,
                                                          name);
 
-    if (NULL != entitlementLib && entitlementLib->bridge)
+    if (entitlementLib && entitlementLib->bridge)
     {
         status = MAMA_STATUS_OK;
         mama_log (MAMA_LOG_LEVEL_NORMAL,
@@ -2153,19 +2151,6 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         /* Return the existing payload bridge implementation */
         entBridge = entitlementLib->bridge;
         goto error_handling_unlock;
-    }
-    else
-    {
-        entitlementLib = malloc(sizeof(mamaEntitlementLib));
-        if (NULL == entitlementLib)
-        {
-            status = MAMA_STATUS_NOMEM;
-            mama_log(MAMA_LOG_LEVEL_ERROR, 
-                     "mama_loadEntitlementBridgeInternal (): "
-                     "Could not allocate entitlementLib %s.",
-                     name);
-            goto error_handling_unlock;
-        }
     }
 
     /* Once we have checked if the bridge has already been loaded, check if
@@ -2183,6 +2168,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     }
 
     snprintf (entImplName, 256, "mama%simpl", name);
+
     entitlementLibHandle = openSharedLib (entImplName, NULL);
 
     if (!entitlementLibHandle)
@@ -2197,17 +2183,6 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     }
 
     snprintf (initFuncName, 256, "%sEntitlementBridge_init",  name);
-
-    entBridge   = malloc(sizeof(mamaEntitlementBridge_));
-    if (NULL == entBridge)
-    {
-        mama_log(MAMA_LOG_LEVEL_ERROR, 
-                 "Could not allocate memory for %s entitlement bridge.",
-                 name);
-
-        status = MAMA_STATUS_NOMEM;
-        goto error_handling_unlock;
-    }
 
     /* Begin by searching for the *Payload_init function */
     vp          = loadLibFunc (entitlementLibHandle, initFuncName);
@@ -2224,7 +2199,27 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         goto error_handling_close_and_unlock;
     }
 
-    status = initFunc(entBridge->mImpl);
+    entBridge   = (mamaEntitlementBridge) calloc (1, sizeof(mamaEntitlementBridge_));
+    if (NULL == entBridge)
+    {
+        status = MAMA_STATUS_NOMEM;
+        mama_log(MAMA_LOG_LEVEL_ERROR, 
+                "mama_loadEntitlementBridgeInternal (): "
+                 "Could not allocate memory for %s entitlement bridge.",
+                 name);
+        goto error_handling_bridge_allocated;
+    }
+
+
+    status = initFunc(*entBridge->mImpl);
+    if (MAMA_STATUS_OK != status)
+    {
+        mama_log (MAMA_LOG_LEVEL_ERROR,
+                  "mama_loadEntitlementBridgeInternal (): "
+                  "Failed to initialise entitlement bridge [%s]. Cannot load.",
+                  name);
+        goto error_handling_bridge_allocated;
+    }
 
     /* Once the payload has been successfully allocated and initialised,
      * we can use the function search to register various payload functions
@@ -2242,9 +2237,18 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         goto error_handling_close_and_unlock;
     }
 
+    entitlementLib = calloc(1, sizeof(mamaEntitlementLib));
+    if (NULL == entitlementLib)
+    {
+        status = MAMA_STATUS_NOMEM;
+        mama_log(MAMA_LOG_LEVEL_ERROR, 
+                 "mama_loadEntitlementBridgeInternal (): "
+                 "Could not allocate entitlementLib %s.",
+                 name);
+        goto error_handling_unlock;
+    }
 
-
-    entitlementLib->bridge        = *(mamaEntitlementBridge*)entBridge;
+    entitlementLib->bridge        = entBridge; 
     entitlementLib->library       = entitlementLibHandle;
 
     int insertCheck = wtable_insert (gImpl.entitlements.table,
@@ -2275,6 +2279,8 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     wthread_static_mutex_unlock (&gImpl.myLock);
     return status;
 
+error_handling_bridge_allocated:
+    free(entBridge);
 error_handling_close_and_unlock:
     closeSharedLib (entitlementLibHandle);
 error_handling_unlock:
