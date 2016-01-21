@@ -50,8 +50,6 @@
 #include "property.h"
 
 #include "entitlementinternal.h"
-extern mamaEntitlementBridge gEntitlementBridge;
-
 extern int gGenerateGlobalStats;
 extern int gGenerateQueueStats;
 extern int gGenerateTransportStats;
