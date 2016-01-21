@@ -27,6 +27,7 @@
 #include "mama/types.h"
 #include "mama/status.h"
 #include "entitlementinternal.h"
+#include "mama/mama.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -36,7 +37,7 @@ extern "C"
 #define MAMA_PAYLOAD_MAX        CHAR_MAX
 #define MAMA_MAX_MIDDLEWARES    CHAR_MAX
 #define MAMA_MAX_ENTITLEMENTS   CHAR_MAX
-
+#define MAX_ENTITLEMENT_BRIDGES CHAR_MAX
 /**
  * @brief Structure for storing combined mamaPayloadBridge and LIB_HANDLE data.
  */
@@ -171,6 +172,26 @@ mamaInternal_getPayloadId (const char*       payloadName,
  */
 mama_i32_t
 mamaInternal_getEntitlementBridgeCount (void);
+
+/**
+ * @brief Search for a loaded entitlement library by name.
+ * @return MAMA_STATUS_OK if successful.
+ */
+ mama_status
+mamaInternal_getEntitlementBridgeByName(mamaEntitlementBridge* entBridge, char* name);
+
+/* ************************************************************************* */
+/* Callbacks. */
+/* ************************************************************************* */
+
+void MAMACALLTYPE mamaImpl_entitlementDisessionDisconnectReasonsconnectCallback (
+                            const  sessionDisconnectReason reason,
+                            const char * const             userId,
+                            const char * const             host,
+                            const char * const             appName);
+void MAMACALLTYPE mamaImpl_entitlementUpdatedCallback (void);
+void MAMACALLTYPE mamaImpl_entitlementCheckingSwitchCallback (
+                            int isEntitlementsCheckingDisabled);
 
 #if defined(__cplusplus)
 }

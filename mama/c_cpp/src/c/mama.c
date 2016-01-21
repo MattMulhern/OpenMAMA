@@ -123,6 +123,8 @@ static mamaPayloadBridge    gDefaultPayload = NULL;
 
 static wthread_key_t last_err_key;
 
+char* loadedBridges [MAX_ENTITLEMENT_BRIDGES] = {"oea", "dacs"};
+
 /**
  * struct mamaApplicationGroup
  * Contains the name of the application and its class name.
@@ -225,18 +227,6 @@ static mamaImpl gImpl = {
                             0,                        /* init */
                             WSTATIC_MUTEX_INITIALIZER /* myLock */
                         };
-/* ************************************************************************* */
-/* Callbacks. */
-/* ************************************************************************* */
-
-void MAMACALLTYPE mamaImpl_entitlementDisconnectCallback (
-                            const sessionDisconnectReason  reason,
-                            const char * const             userId,
-                            const char * const             host,
-                            const char * const             appName);
-void MAMACALLTYPE mamaImpl_entitlementUpdatedCallback ();
-void MAMACALLTYPE mamaImpl_entitlementCheckingSwitchCallback (
-                            int isEntitlementsCheckingDisabled);
 
 /* ************************************************************************* */
 /* Private Function Prototypes. */
@@ -2254,7 +2244,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
 
 
 
-    entitlementLib->bridge        = *(mamaEntitlementBridge*)bridge;
+    entitlementLib->bridge        = *(mamaEntitlementBridge*)entBridge;
     entitlementLib->library       = entitlementLibHandle;
 
     int insertCheck = wtable_insert (gImpl.entitlements.table,
@@ -2272,6 +2262,8 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
     else
     {
         gImpl.entitlements.count++;
+
+        gImpl.entitlements.byIndex[gImpl.entitlements.count - 1] = entitlementLib;
 
         mama_log (MAMA_LOG_LEVEL_ERROR,
                   "mama_loadEntitlementBridgeInternal (): "

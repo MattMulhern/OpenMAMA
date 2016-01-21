@@ -444,9 +444,9 @@ mamaSubscription_setupBasic (
         return MAMA_STATUS_NO_BRIDGE_IMPL;
     }
 
-#ifdef WITH_ENTITLEMENTS
+
     mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-    if (gEntitlementBridge == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge))
+    if (0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge))
     {
         mama_log (MAMA_LOG_LEVEL_FINER,
                     "Entitlements checking at subscription creation deferred to %s bridge [%p]",
@@ -480,7 +480,7 @@ mamaSubscription_setupBasic (
             subscMsgType = MAMA_SUBSC_SNAPSHOT;
 #ifdef WITH_ENTITLEMENTS
             mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-            if (!(gEntitlementBridge == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
+            if (!(0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
                 self->mSubjectContext.mEntitlementBridge->setIsSnapshot(self->mSubjectContext.mEntitlementSubscription, 1);
 #endif
             break;
@@ -1188,7 +1188,7 @@ mamaSubscription_getSubjectContext (mamaSubscription subscription,
         context->mSymbol = copyString (issueSymbol);
         #ifdef WITH_ENTITLEMENTS
         mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-        if (!(gEntitlementBridge == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
+        if (!(0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
             self->mSubjectContext.mEntitlementBridge->handleNewSubscription (&(self->mSubjectContext));
         #endif 
 
@@ -2055,7 +2055,7 @@ mamaSubscription_processTportMsg( mamaSubscription subscription,
 
 #ifdef WITH_ENTITLEMENTS
     mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-    if (!(gEntitlementBridge == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
+    if (!(0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
         mamaMsg_getEntitleCode (msg, &entitleCode);
 #endif
     if (entitleCode == 0)
@@ -2109,7 +2109,7 @@ mamaSubscription_processWildCardMsg( mamaSubscription subscription,
 
 #ifdef WITH_ENTITLEMENTS
     mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-    if (!(gEntitlementBridge == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
+    if (!(0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
         mamaMsg_getEntitleCode (msg, &entitleCode);
 #endif
     if (entitleCode == 0)
@@ -2184,7 +2184,7 @@ mamaSubscription_processMsg (mamaSubscription subscription, mamaMsg msg)
         int32_t entitleCode = 0;
 #ifdef WITH_ENTITLEMENTS
         mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-        if (!(gEntitlementBridge == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
+        if (!(0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
             mamaMsg_getEntitleCode (msg, &entitleCode);
 #endif
         if (entitleCode == 0)
@@ -2425,7 +2425,7 @@ isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subs
 
     mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
 
-    if (gEntitlementBridge == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge)) /* Not enforcing entitlements. */
+    if (mamaInternal_getEntitlementBridgeCount() == 0 || mamaBridgeImpl_areEntitlementsDeferred(bridge)) /* Not enforcing entitlements. */
     {
         return 1;
     }
