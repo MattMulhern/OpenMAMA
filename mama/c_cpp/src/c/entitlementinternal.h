@@ -51,7 +51,7 @@ typedef int
 
 typedef struct mamaEntitlementBridge_
 { 
-    entitlementBridge mImpl; /* pointer to implementation bridge struct */
+    entitlementBridge* mImpl; /* pointer to implementation bridge struct */
 
     /* pure functions, defined in entitlement.c */
     entitlementBridge_create                    entitlementCreate;

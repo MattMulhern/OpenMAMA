@@ -19,8 +19,14 @@
  * 02110-1301 USA
  */
 
+#include <OeaClient.h>
+ 
 #ifndef OeaH__
 #define OeaH__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 
 #define OEA_SERVER_PROPERTY     "entitlement.servers"
@@ -51,7 +57,7 @@ mama_status
 oeaEntitlementBridge_registerSubjectContext(SubjectContext* ctx);
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(SubjectContext ctx);
+oeaEntitlementBridge_handleNewSubscription(SubjectContext* ctx);
 
 mama_status
 oeaEntitlementBridge_setIsSnapshot(oeaEntitlementSubscriptionHandle handle, int isSnapshot);
@@ -63,6 +69,10 @@ mama_status
 oeaEntitlementBridge_destroy(mamaEntitlementBridge bridge);
 
 mama_status
-oeaEntitlementBridge_init(entitlementBridge bridge);
+oeaEntitlementBridge_init(entitlementBridge* bridge);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* OeaH__ */

@@ -2234,7 +2234,7 @@ mama_loadEntitlementBridgeInternal(mamaEntitlementBridge* bridge,
         goto error_handling_close_and_unlock;
     }
 
-    status = initFunc(bridge);
+    status = initFunc(entBridge->mImpl);
 
     /* Once the payload has been successfully allocated and initialised,
      * we can use the function search to register various payload functions
