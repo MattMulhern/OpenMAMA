@@ -20,6 +20,8 @@
  */
 
 #include <OeaClient.h>
+#include <OeaStatus.h>
+#include <OeaSubscription.h>
  
 #ifndef OeaH__
 #define OeaH__
@@ -60,10 +62,10 @@ mama_status
 oeaEntitlementBridge_handleNewSubscription(SubjectContext* ctx);
 
 mama_status
-oeaEntitlementBridge_setIsSnapshot(oeaEntitlementSubscriptionHandle handle, int isSnapshot);
+oeaEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle handle, int isSnapshot);
 
 int
-oeaEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject);
+oeaEntitlementBridge_isAllowed(entitlementSubscriptionHandle handle, char* subject);
 
 mama_status
 oeaEntitlementBridge_destroy(mamaEntitlementBridge bridge);

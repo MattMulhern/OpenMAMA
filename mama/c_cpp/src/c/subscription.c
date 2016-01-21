@@ -455,7 +455,6 @@ mamaSubscription_setupBasic (
     {
         mamaEntitlementBridge entBridge = NULL;
         mama_status status = mamaTransportImpl_getEntitlementBridge(transport, &entBridge);
-        mama_log(MAMA_LOG_LEVEL_ERROR, "bridge = %p", entBridge);
         entBridge->handleNewSubscription(&self->mSubjectContext);
         //gImpl.entitlements.byIndex[0].bridge->handleNewSubscription(NULL);
         //oeaEntitlementBridge_handleNewSubscription(&self->mSubjectContext);
@@ -1397,7 +1396,7 @@ static void freeCacheCb (
     if (ctx->mEntitlementSubscription != NULL)
     {
         //todo: check we're destroying the right thing here!
-        mamaEntitlementSubscription_destroy (*ctx->mEntitlementSubscription);
+        mamaEntitlementSubscription_destroy (ctx->mEntitlementSubscription);
         ctx->mEntitlementSubscription = NULL;
     }
     #endif
@@ -1451,7 +1450,7 @@ mamaSubscription_cleanup (mamaSubscription subscription)
         if (self->mSubjectContext.mEntitlementSubscription != NULL)
         {
             /* Destroy will also close a subscription if it is open */
-            mamaEntitlementSubscription_destroy (*self->mSubjectContext.mEntitlementSubscription);
+            mamaEntitlementSubscription_destroy (self->mSubjectContext.mEntitlementSubscription);
             self->mSubjectContext.mEntitlementSubscription = NULL;
         }
     }
@@ -2420,8 +2419,8 @@ mamaSubscription_setTransportIndex (
 static int
 isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subscription)
 {
-    int result = 0;
-    char subject[WOMBAT_SUBJECT_MAX];
+    int         result = 0;
+    char        subject[WOMBAT_SUBJECT_MAX];
 
     snprintf (subject, WOMBAT_SUBJECT_MAX, "%s.%s", source, symbol);
 
@@ -2432,10 +2431,15 @@ isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subs
         return 1;
     }
 
-    result = self->mSubjectContext.mEntitlementBridge->isAllowed(self->mSubjectContext.mEntitlementSubscription, subject);
-    //oeaSubscription_setSubject (self->mSubjectContext.mOeaSubscription, subject);
-    //result = oeaSubscription_isAllowed (self->mSubjectContext.mOeaSubscription); 
-    
+    mamaTransport transport = NULL;
+    mamaSubscription_getTransport(subscription, &transport);
+
+    mamaEntitlementBridge entBridge = NULL;
+    mamaTransportImpl_getEntitlementBridge(transport, &entBridge);
+
+    //oeaEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject)
+    entitlementSubscriptionHandle handle= self->mSubjectContext.mEntitlementSubscription->mImpl;
+    result = entBridge->isAllowed(handle, subject);
     return result;
 }
 

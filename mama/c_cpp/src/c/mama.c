@@ -2114,12 +2114,13 @@ mama_loadEntitlementBridgeInternal(const char* name)
     void*               vp                      = NULL;
     entitlementBridge_init initFunc             = NULL;
     mamaEntitlementBridge  entBridge            = 0;
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: ");
 
     if (!name)
     {
         return MAMA_STATUS_NULL_ARG;
     }
-
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: calling _init");
     status = mamaInternal_init ();
 
     if (MAMA_STATUS_OK != status)
@@ -2136,6 +2137,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
      * the new one.
      */
     wthread_static_mutex_lock (&gImpl.myLock);
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: lookingn up");
 
     entitlementLib = (mamaEntitlementLib*) wtable_lookup (gImpl.entitlements.table,
                                                          name);
@@ -2152,6 +2154,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
         entBridge = entitlementLib->bridge;
         goto error_handling_unlock;
     }
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: checking max");
 
     /* Once we have checked if the bridge has already been loaded, check if
      * we've already loaded the maximum number of bridges allowed,
@@ -2168,6 +2171,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
     }
 
     snprintf (entImplName, 256, "mama%simpl", name);
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: opening lib");
 
     entitlementLibHandle = openSharedLib (entImplName, NULL);
 
@@ -2198,8 +2202,10 @@ mama_loadEntitlementBridgeInternal(const char* name)
                   name);
         goto error_handling_close_and_unlock;
     }
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: alloc'ing bridge");
 
     entBridge   = (mamaEntitlementBridge) calloc (1, sizeof(mamaEntitlementBridge_));
+
     if (NULL == entBridge)
     {
         status = MAMA_STATUS_NOMEM;
@@ -2209,6 +2215,8 @@ mama_loadEntitlementBridgeInternal(const char* name)
                  name);
         goto error_handling_bridge_allocated;
     }
+
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: calling _init");
 
     status = initFunc(&entBridge->mImpl);
     if (MAMA_STATUS_OK != status)
@@ -2223,9 +2231,12 @@ mama_loadEntitlementBridgeInternal(const char* name)
     /* Once the payload has been successfully allocated and initialised,
      * we can use the function search to register various payload functions
      */
+         mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: registering funcs");
+
     status = mamaInternal_registerEntitlementFunctions (entitlementLibHandle,
                                                         &entBridge,
                                                         name);
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mamaInternal_loadEntitlementLibInternal():");
 
     if (MAMA_STATUS_OK != status)
     {
@@ -2235,6 +2246,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
                   name);
         goto error_handling_close_and_unlock;
     }
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: allocing lib");
 
     entitlementLib = calloc(1, sizeof(mamaEntitlementLib));
     if (NULL == entitlementLib)
@@ -2249,6 +2261,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
 
     entitlementLib->bridge        = entBridge; 
     entitlementLib->library       = entitlementLibHandle;
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: inserting");
 
     int insertCheck = wtable_insert (gImpl.entitlements.table,
                             name,
@@ -2264,7 +2277,10 @@ mama_loadEntitlementBridgeInternal(const char* name)
     }
     else
     {
+            mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: incrementing");
+
         gImpl.entitlements.count++;
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mama_loadEntitlementBridgeInternal: setting byindex ");
 
         gImpl.entitlements.byIndex[gImpl.entitlements.count - 1] = entitlementLib;
 
@@ -2276,6 +2292,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
     }
 
     wthread_static_mutex_unlock (&gImpl.myLock);
+    mama_log(MAMA_LOG_LEVEL_ERROR, "mamaInternal_loadEntitlementLibInternal(): exitting with %s", mamaStatus_stringForStatus(status));
     return status;
 
 error_handling_bridge_allocated:

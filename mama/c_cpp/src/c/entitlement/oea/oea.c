@@ -24,6 +24,7 @@
 /* OEA  */
 #include <OeaClient.h>
 #include <OeaStatus.h>
+#include <OeaSubscription.h>
 /* mama */
 #include "mama/mama.h"
 #include "subscriptionimpl.h"
@@ -187,7 +188,7 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
         mama_log(MAMA_LOG_LEVEL_ERROR, 
                  "oeaEntitlementBridge_init: Error creating oea client[%s].",
                  mamaStatus_stringForStatus((mama_status) entitlementStatus));
-        return entitlementStatus;
+        //return entitlementStatus;
     }
 
     if (oClient != 0)
@@ -287,13 +288,13 @@ oeaEntitlementBridge_handleNewSubscription(SubjectContext* ctx)
 }
 
 mama_status
-oeaEntitlementBridge_setIsSnapshot(oeaEntitlementSubscriptionHandle handle, int isSnapshot)
+oeaEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle handle, int isSnapshot)
 {
-    oeaSubscription_setIsSnapshot(handle.mOeaSubscription, isSnapshot);
+    oeaSubscription_setIsSnapshot(&handle.mOeaSubscription, isSnapshot);
 }
 
 int
-oeaEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject)
+oeaEntitlementBridge_isAllowed(entitlementSubscriptionHandle handle, char* subject)
 {
     oeaSubscription_setSubject (handle.mOeaSubscription, subject);
     return oeaSubscription_isAllowed (handle.mOeaSubscription); 

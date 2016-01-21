@@ -374,5 +374,6 @@ mamaInternal_registerEntitlementFunctions (LIB_HANDLE               bridgeLib,
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_registerSubjectContext, registerSubjectContext,     entitlementBridge_registerSubjectContext);
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_setIsSnapshot,          setIsSnapshot,              entitlementBridge_setIsSnapshot);
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_isAllowed,              isAllowed,                  entitlementBridge_isAllowed);
+    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_handleNewSubscription,  handleNewSubscription,      entitlementBridge_handleNewSubscription);
     return status;
 }

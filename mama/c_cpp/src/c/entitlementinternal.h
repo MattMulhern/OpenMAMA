@@ -45,13 +45,13 @@ typedef mama_status
 typedef mama_status
 (*entitlementBridge_handleNewSubscription) (SubjectContext* ctx);
 typedef mama_status
-(*entitlementBridge_setIsSnapshot) (mamaEntitlementSubscription* handle, int isSnapshot);
+(*entitlementBridge_setIsSnapshot) (mamaEntitlementSubscription handle, int isSnapshot);
 typedef int
 (*entitlementBridge_isAllowed) (mamaEntitlementSubscription* handle, char* subject);
 
 typedef struct mamaEntitlementBridge_
 { 
-    entitlementBridge* mImpl; /* pointer to implementation bridge struct */
+    entitlementBridge mImpl; /* pointer to implementation bridge struct */
 
     /* pure functions, defined in entitlement.c */
     entitlementBridge_create                    entitlementCreate;
@@ -69,7 +69,7 @@ typedef struct mamaEntitlementBridge_
 
 typedef struct mamaEntitlementSubscription_
 {
-    mamaEntitlementBridge*        mEntitlementBridge;
+    //mamaEntitlementBridge*         mEntitlementBridge;  //not actually used anywhere
     entitlementSubscriptionHandle mImpl;
 }mamaEntitlementSubscription_;
 
