@@ -6,21 +6,6 @@ env = env.Clone()
 
 target = 'libmamaoeaimpl'
 
-"""
-if env['entitled'] == True:
-    InstOeaInclude = [ "{0}/include/oea/OeaClient.h".format(env['entitle_home']),
-                       "{0}/include/oea/OeaSubscription.h".format(env['entitle_home']),
-                       "{0}/include/oea/OeaStatus.h".format(env['entitle_home']) ]
-
-    Alias('install', env.Install('$prefix/include/oea', InstOeaInclude))
-
-    env.Append( 
-        LIBPATH = [  ],
-        CPPPATH = [  ],
-        LIBS = ['oeac'],
-        CPPDEFINES = ['WITH_ENTITLEMENTS'],
-    )
-"""
 includePath = []
 includePath.append(os.path.join(env['entitle_home'],'include/oea'))
 includePath.append('#mama/c_cpp/src/c')
