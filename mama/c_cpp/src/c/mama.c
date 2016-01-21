@@ -2115,7 +2115,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
     entitlementBridge_init initFunc             = NULL;
     mamaEntitlementBridge  entBridge            = 0;
 
-    if (!entBridge || !name)
+    if (!name)
     {
         return MAMA_STATUS_NULL_ARG;
     }
@@ -2184,7 +2184,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
 
     snprintf (initFuncName, 256, "%sEntitlementBridge_init",  name);
 
-    /* Begin by searching for the *Payload_init function */
+    /* Begin by searching for the *_init function */
     vp          = loadLibFunc (entitlementLibHandle, initFuncName);
     initFunc    = *(entitlementBridge_init*) &vp;
 
@@ -2210,8 +2210,7 @@ mama_loadEntitlementBridgeInternal(const char* name)
         goto error_handling_bridge_allocated;
     }
 
-
-    status = initFunc(*entBridge->mImpl);
+    status = initFunc(&entBridge->mImpl);
     if (MAMA_STATUS_OK != status)
     {
         mama_log (MAMA_LOG_LEVEL_ERROR,

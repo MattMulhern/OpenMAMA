@@ -148,7 +148,7 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
     }
 
     mama_log (MAMA_LOG_LEVEL_NORMAL,
-              "Attempting to connect to entitlement server");
+              "oeaEntitlementBridge_init: Attempting to connect to entitlement server");
 
     portLowStr  = mama_getProperty (OEA_PORTLOW_PROPERTY);
     portHighStr = mama_getProperty (OEA_PORTHIGH_PROPERTY);
@@ -184,6 +184,9 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
 
     if (entitlementStatus != OEA_STATUS_OK)
     {
+        mama_log(MAMA_LOG_LEVEL_ERROR, 
+                 "oeaEntitlementBridge_init: Error creating oea client[%s].",
+                 mamaStatus_stringForStatus((mama_status) entitlementStatus));
         return entitlementStatus;
     }
 
