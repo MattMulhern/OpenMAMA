@@ -2931,3 +2931,34 @@ mamaInternal_getEntitlementBridgeCount ()
 {
     return gImpl.entitlements.count;
 }
+
+/**
+ * @brief Find loaded entitlement bridge by name.
+ *
+ * @param[in] name The name of the entitlement bridge to be found.
+ * @param[out] entBridge The loaded entitlement bridge (if found).
+ *
+ * @return MAMA_STATUS_OK if successful.
+ */
+mama_status
+mamaInternal_getEntitlementBridgeByName(mamaEntitlementBridge* entBridge, char* name)
+{
+    mamaEntitlementLib* entitlementLib;
+    entitlementLib = (mamaEntitlementLib*) wtable_lookup (gImpl.entitlements.table,
+                                                         name);
+
+    if (entitlementLib && entitlementLib->bridge)
+    {
+        /* Return the existing entitlement bridge implementation */
+        *entBridge = entitlementLib->bridge;
+        return MAMA_STATUS_OK;
+    }
+    else
+    {
+        mama_log (MAMA_LOG_LEVEL_SEVERE,
+                  "mamaInternal_getEntitlementBridgeByName (): "
+                  "Could not find loaded entitlement library [%s].",
+                  name);
+        return MAMA_STATUS_NOT_FOUND;
+    }
+}

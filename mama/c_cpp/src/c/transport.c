@@ -44,6 +44,7 @@
 #include "statsgeneratorinternal.h"
 #include "mama/statscollector.h"
 #include "wombat/strutils.h"
+#include "mama/entitlement.h"
 
 extern int gGenerateTransportStats;
 extern int gGenerateLbmStats;
@@ -177,6 +178,7 @@ typedef struct transportImpl_
     preInitialScheme         mPreInitialScheme;
     mama_bool_t             mPreRecapCacheEnabled;
     void*                   mClosure;
+    mamaEntitlementBridge   mEntitlementBridge;
 } transportImpl;
 
 static mama_status
@@ -900,6 +902,9 @@ mamaTransport_create (mamaTransport transport,
                   "mamaTransport_create(): TransportPostCreateHook failed with a status of %s",
                    mamaStatus_stringForStatus(status));
     }
+
+    //TODO: need to hook this up to a mama.properties entry.
+    status = mamaInternal_getEntitlementBridgeByName(&self->mEntitlementBridge, "oea");
 
     return MAMA_STATUS_OK;
 }
@@ -2707,4 +2712,14 @@ mama_status mamaTransportImpl_allocateInternalTransport(mamaTransport *transport
         }
     }
     return ret;
+}
+
+mama_status mamaTransportImpl_getEntitlementBridge(mamaTransport transport, mamaEntitlementBridge* entBridge)
+{
+    if (NULL != self->mEntitlementBridge)
+    {
+        *entBridge = self->mEntitlementBridge;
+        return MAMA_STATUS_OK;
+    }
+    return MAMA_STATUS_NOT_FOUND;
 }
