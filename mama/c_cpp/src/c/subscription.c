@@ -457,13 +457,11 @@ mamaSubscription_setupBasic (
         self->mSubjectContext.mEntitlementBridge->handleNewSubscription (&(self->mSubjectContext));
     }
 
-    /*Up from entitlement check based on string compare on symbol*/
     if (!isEntitledToSymbol (source, symbol, self))
     {
         setSubscInfo (self, transport, root, source, symbol);
         return MAMA_STATUS_NOT_ENTITLED;
     }
-#endif
     
     self->mSubjectContext.mSymbol = copyString (symbol);
     
