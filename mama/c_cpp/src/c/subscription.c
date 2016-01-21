@@ -454,7 +454,12 @@ mamaSubscription_setupBasic (
     }
     else
     {
-        self->mSubjectContext.mEntitlementBridge->handleNewSubscription (&(self->mSubjectContext));
+        mamaEntitlementBridge entBridge = NULL;
+        mama_status status = mamaTransportImpl_getEntitlementBridge(transport, &entBridge);
+        mama_log(MAMA_LOG_LEVEL_ERROR, "bridge = %p", entBridge);
+        gImpl.entitlements.byIndex[0].bridge->handleNewSubscription(NULL);
+        // entBridge->handleNewSubscription(&self->mSubjectContext);
+        //oeaEntitlementBridge_handleNewSubscription(&self->mSubjectContext);
     }
 
     if (!isEntitledToSymbol (source, symbol, self))

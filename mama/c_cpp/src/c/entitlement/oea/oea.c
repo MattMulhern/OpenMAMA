@@ -268,17 +268,18 @@ oeaEntitlmentBridge_parseServersProperty()
 
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(SubjectContext ctx)
+oeaEntitlementBridge_handleNewSubscription(SubjectContext* ctx)
 {
-    mamaEntitlementBridge bridge    = (mamaEntitlementBridge) ctx.mEntitlementBridge;
-    oeaEntitlementBridge*  bridgeImpl = (oeaEntitlementBridge*) bridge->mImpl;
-    oeaStatus status;
+    mama_log (MAMA_LOG_LEVEL_NORMAL, "HANDLING NEW SUBSCRIPTION");
+    // mamaEntitlementBridge bridge    = (mamaEntitlementBridge) ctx->mEntitlementBridge;
+    // oeaEntitlementBridge*  bridgeImpl = (oeaEntitlementBridge*) bridge->mImpl;
+    // oeaStatus status;
 
-    ctx.mEntitlementSubscription = oeaClient_newSubscription(&status, bridgeImpl->mOeaClient);
-    if (OEA_STATUS_OK != status)
-    {
-        return MAMA_STATUS_NOT_ENTITLED;
-    }
+    // ctx->mEntitlementSubscription = oeaClient_newSubscription(&status, bridgeImpl->mOeaClient);
+    // if (OEA_STATUS_OK != status)
+    // {
+    //     return MAMA_STATUS_NOT_ENTITLED;
+    // }
     return MAMA_STATUS_OK;
 }
 
