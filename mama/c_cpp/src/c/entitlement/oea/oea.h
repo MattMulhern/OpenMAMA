@@ -59,13 +59,13 @@ mama_status
 oeaEntitlementBridge_registerSubjectContext(SubjectContext* ctx);
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(SubjectContext* ctx);
+oeaEntitlementBridge_handleNewSubscription(mamaEntitlementBridge entBridge, SubjectContext* ctx);
 
 mama_status
-oeaEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle handle, int isSnapshot);
+oeaEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle* handle, int isSnapshot);
 
 int
-oeaEntitlementBridge_isAllowed(entitlementSubscriptionHandle handle, char* subject);
+oeaEntitlementBridge_isAllowed(entitlementSubscriptionHandle* handle, char* subject);
 
 mama_status
 oeaEntitlementBridge_destroy(mamaEntitlementBridge bridge);

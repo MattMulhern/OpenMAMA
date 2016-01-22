@@ -119,7 +119,7 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
     const char*     site;
     const char**    entitlementServers;
 
-    oeaEntitlementBridge* oeaBridge = (oeaEntitlementBridge*) bridge;
+    oeaEntitlementBridge* oeaBridge = calloc(1, sizeof(oeaEntitlementBridge));
     const char*     appName;
     mama_status     status;
 
@@ -222,6 +222,10 @@ oeaEntitlementBridge_init(entitlementBridge* bridge)
     /* set client in oeaEntitlementBridge struct */
     oeaBridge->mOeaClient= oClient;
 
+    /* set mamaEntitlemententitlement bridge pointer to bridge implementation struct */
+    *bridge = oeaBridge;
+
+
     return MAMA_STATUS_OK;
 }
 
@@ -272,32 +276,38 @@ oeaEntitlmentBridge_parseServersProperty()
 
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(SubjectContext* ctx)
+oeaEntitlementBridge_handleNewSubscription(mamaEntitlementBridge mamaEntBridge, SubjectContext* ctx)
 {
-    mama_log (MAMA_LOG_LEVEL_NORMAL, "HANDLING NEW SUBSCRIPTION");
-    // mamaEntitlementBridge bridge    = (mamaEntitlementBridge) ctx->mEntitlementBridge;
-    // oeaEntitlementBridge*  bridgeImpl = (oeaEntitlementBridge*) bridge->mImpl;
-    // oeaStatus status;
+    oeaEntitlementBridge*  oeaBridge = (oeaEntitlementBridge*) mamaEntBridge->mImpl;
 
-    // ctx->mEntitlementSubscription = oeaClient_newSubscription(&status, bridgeImpl->mOeaClient);
-    // if (OEA_STATUS_OK != status)
-    // {
-    //     return MAMA_STATUS_NOT_ENTITLED;
-    // }
+    oeaEntitlementSubscriptionHandle* oeaSubHandle = calloc(1,sizeof(oeaEntitlementSubscriptionHandle));
+
+    oeaStatus status;
+    oeaSubHandle->mOeaSubscription = oeaClient_newSubscription(&status, oeaBridge->mOeaClient);
+    if (OEA_STATUS_OK != status)
+    {
+        return MAMA_STATUS_NOT_ENTITLED;
+    }
+
+    ctx->mEntitlementBridge = mamaEntBridge;
+    ctx->mEntitlementSubscription->mImpl = oeaSubHandle;
+
     return MAMA_STATUS_OK;
 }
 
 mama_status
-oeaEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle handle, int isSnapshot)
+oeaEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle* handle, int isSnapshot)
 {
-    oeaSubscription_setIsSnapshot(&handle.mOeaSubscription, isSnapshot);
+    oeaEntitlementSubscriptionHandle* oeaSubHandle = (oeaEntitlementSubscriptionHandle*) handle;
+    oeaSubscription_setIsSnapshot(oeaSubHandle->mOeaSubscription, isSnapshot);
 }
 
 int
-oeaEntitlementBridge_isAllowed(entitlementSubscriptionHandle handle, char* subject)
+oeaEntitlementBridge_isAllowed(entitlementSubscriptionHandle* handle, char* subject)
 {
-    oeaSubscription_setSubject (handle.mOeaSubscription, subject);
-    return oeaSubscription_isAllowed (handle.mOeaSubscription); 
+    oeaEntitlementSubscriptionHandle* oeaSubHandle = (oeaEntitlementSubscriptionHandle*) handle;
+    oeaSubscription_setSubject (oeaSubHandle->mOeaSubscription, subject);
+    return oeaSubscription_isAllowed (oeaSubHandle->mOeaSubscription); 
 
 }
 

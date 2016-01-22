@@ -245,7 +245,8 @@ static int
 isEntitledToSymbol (
     const char* source,
     const char* symbol,
-    mamaSubscription subscription);
+    mamaSubscription subscription,
+    mamaTransport transport);
 
 static void
 mamaSubscription_initialize (
@@ -453,14 +454,25 @@ mamaSubscription_setupBasic (
     }
     else
     {
-        mamaEntitlementBridge entBridge = NULL;
-        mama_status status = mamaTransportImpl_getEntitlementBridge(transport, &entBridge);
-        entBridge->handleNewSubscription(&self->mSubjectContext);
+        mamaEntitlementBridge mamaEntBridge = NULL;
+        mama_status status = mamaTransportImpl_getEntitlementBridge(transport, &mamaEntBridge);
+        // entBridge->handleNewSubscription(entBridge->mImpl, &self->mSubjectContext);
+
+        if (NULL != mamaEntBridge)
+        {
+            mamaEntBridge->handleNewSubscription(mamaEntBridge, &self->mSubjectContext);
+        }
+        else
+        {
+            mama_log(MAMA_LOG_LEVEL_ERROR,
+                     "mamaSubscription_setupBasic(): Could not find entitlement bridge!");
+            return MAMA_STATUS_NO_BRIDGE_IMPL;
+        }
         //gImpl.entitlements.byIndex[0].bridge->handleNewSubscription(NULL);
         //oeaEntitlementBridge_handleNewSubscription(&self->mSubjectContext);
     }
 
-    if (!isEntitledToSymbol (source, symbol, self))
+    if (!isEntitledToSymbol (source, symbol, self, transport))
     {
         setSubscInfo (self, transport, root, source, symbol);
         return MAMA_STATUS_NOT_ENTITLED;
@@ -1187,11 +1199,11 @@ mamaSubscription_getSubjectContext (mamaSubscription subscription,
         dqContext_initializeContext (&context->mDqContext, self->mPreInitialCacheSize, recap);
         msgUtils_getIssueSymbol (msg, &issueSymbol);
         context->mSymbol = copyString (issueSymbol);
-        #ifdef WITH_ENTITLEMENTS
-        mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
-        if (!(0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
-            self->mSubjectContext.mEntitlementBridge->handleNewSubscription (&(self->mSubjectContext));
-        #endif 
+        // #ifdef WITH_ENTITLEMENTS
+        // mamaBridgeImpl* bridge = mamaSubscription_getBridgeImpl(subscription);
+        // if (!(0 == mamaInternal_getEntitlementBridgeCount() || mamaBridgeImpl_areEntitlementsDeferred(bridge)))
+        //     self->mSubjectContext.mEntitlementBridge->handleNewSubscription (&(self->mSubjectContext));
+        // #endif 
 
         wtable_insert (self->mSubjects, (char*)sendSubject, (void*)context);
     }
@@ -2417,7 +2429,7 @@ mamaSubscription_setTransportIndex (
 
 
 static int
-isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subscription)
+isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subscription, mamaTransport transport)
 {
     int         result = 0;
     char        subject[WOMBAT_SUBJECT_MAX];
@@ -2431,8 +2443,8 @@ isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subs
         return 1;
     }
 
-    mamaTransport transport = NULL;
-    mamaSubscription_getTransport(subscription, &transport);
+    // mamaTransport transport = NULL;
+    // mamaSubscription_getTransport(subscription, &transport);
 
     mamaEntitlementBridge entBridge = NULL;
     mamaTransportImpl_getEntitlementBridge(transport, &entBridge);

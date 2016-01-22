@@ -43,7 +43,7 @@ typedef mama_status
 typedef mama_status
 (*entitlementBridge_registerSubjectContext) (SubjectContext* ctx);
 typedef mama_status
-(*entitlementBridge_handleNewSubscription) (SubjectContext* ctx);
+(*entitlementBridge_handleNewSubscription) (mamaEntitlementBridge mamaEntBridge, SubjectContext* ctx);
 typedef mama_status
 (*entitlementBridge_setIsSnapshot) (mamaEntitlementSubscription handle, int isSnapshot);
 typedef int
