@@ -15,6 +15,7 @@ if 'qpid' in env['middleware']:
     modules.append('qpidmsg') 
 """
 
+modules.append('noent')
 modules.append('oea')
 
 for m in modules:
