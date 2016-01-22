@@ -456,7 +456,6 @@ mamaSubscription_setupBasic (
     {
         mamaEntitlementBridge mamaEntBridge = NULL;
         mama_status status = mamaTransportImpl_getEntitlementBridge(transport, &mamaEntBridge);
-        // entBridge->handleNewSubscription(entBridge->mImpl, &self->mSubjectContext);
 
         if (NULL != mamaEntBridge)
         {
@@ -468,8 +467,6 @@ mamaSubscription_setupBasic (
                      "mamaSubscription_setupBasic(): Could not find entitlement bridge!");
             return MAMA_STATUS_NO_BRIDGE_IMPL;
         }
-        //gImpl.entitlements.byIndex[0].bridge->handleNewSubscription(NULL);
-        //oeaEntitlementBridge_handleNewSubscription(&self->mSubjectContext);
     }
 
     if (!isEntitledToSymbol (source, symbol, self, transport))
