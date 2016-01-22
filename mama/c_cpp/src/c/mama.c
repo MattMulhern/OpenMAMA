@@ -897,7 +897,7 @@ mama_openWithPropertiesCount (const char* path,
     /* MMTODO: just loading oea libs here, need to put somethign more dynamic in here 
      * note: mama_loadEntitlementBridge already populates gImpl.entitlements wtable.
      */
-    if (MAMA_STATUS_OK != mama_loadEntitlementBridge("oea"))
+    if (MAMA_STATUS_OK != mama_loadEntitlementBridge("noent"))
     {
         //TODO: mamaEntitlementBridge_destroy() here??
         mama_log(MAMA_LOG_LEVEL_SEVERE,
@@ -2928,7 +2928,6 @@ mamaInternal_getPayloadId (const char* payloadName,
 
     return status;
 }
-
 
 /**
  * @brief Return count of entitlementBridges loaded.

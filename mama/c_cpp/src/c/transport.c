@@ -904,7 +904,7 @@ mamaTransport_create (mamaTransport transport,
     }
 
     //TODO: need to hook this up to a mama.properties entry.
-    status = mamaInternal_getEntitlementBridgeByName(&self->mEntitlementBridge, "oea");
+    status = mamaInternal_getEntitlementBridgeByName(&self->mEntitlementBridge, "noent");
 
     return MAMA_STATUS_OK;
 }

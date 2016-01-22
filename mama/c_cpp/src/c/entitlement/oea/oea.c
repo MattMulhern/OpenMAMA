@@ -290,7 +290,13 @@ oeaEntitlementBridge_handleNewSubscription(mamaEntitlementBridge mamaEntBridge, 
     }
 
     ctx->mEntitlementBridge = mamaEntBridge;
-    ctx->mEntitlementSubscription->mImpl = oeaSubHandle;
+
+    /* Allocate mama_level entitlement subscription object and set implementation struct pointer. */
+    mamaEntitlementSubscription mamaEntSub = calloc (1, sizeof(mamaEntitlementSubscription));
+    mamaEntSub->mImpl =  oeaSubHandle;
+
+    /* Add mama level struct to subscription SubjectContext. */
+    ctx->mEntitlementSubscription = mamaEntSub;
 
     return MAMA_STATUS_OK;
 }

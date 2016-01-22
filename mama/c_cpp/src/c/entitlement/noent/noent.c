@@ -21,48 +21,18 @@
 
 #include <string.h>
 #include <stdio.h>
-/* mama */
-#include "mama/mama.h"
-#include "subscriptionimpl.h"
-#include "noent.h"
+/* mama internal */
 #include "subscriptionimpl.h"
 #include "mamainternal.h"
-
-
-
-/*
-void entitlementDisconnectCallback (noentClient* client,
-                                    const noent_DISCONNECT_REASON reason,
-                                    const char * const          userId,
-                                    const char * const          host,
-                                    const char * const          appName);
-void entitlementUpdatedCallback (noentClient*,
-                                 int openSubscriptionForbidden);
-void entitlementCheckingSwitchCallback (noentClient*,
-                                        int isEntitlementsCheckingDisabled);
-*/
-
+/* mama public */
+#include "mama/mama.h"
+/* implementation */
+#include "noent.h"
 
 mama_status
 noentEntitlementBridge_registerSubjectContext(SubjectContext* ctx)
 {
     mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_registerSubjectContext():");
-    /*
-    noentSubscription*    noentSub = (noentSubscription*) ctx->mEntitlementBridge->mImpl;
-
-    noentSubscription_addEntitlementCode (noentSub, ctx->mEntitleCode);
-    noentSubscription_open (noentSub);
-    int result = noentSubscription_isOpen (noentSub);
-
-    if (0 == result)
-    {
-        mama_log(MAMA_LOG_LEVEL_ERROR,
-                 "Could not handle entitlements for new subscription [%s].",
-                 ctx->mSymbol);
-        return MAMA_STATUS_NOT_ENTITLED;
-    }
-
-    */
     return MAMA_STATUS_OK;
 }
 
@@ -84,7 +54,7 @@ noentEntitlementBridge_init(entitlementBridge* bridge)
     noentEntitlementBridge* noentBridge = calloc(1, sizeof(noentEntitlementBridge));
 
     /* set mamaEntitlemententitlement bridge pointer to bridge implementation struct */
-    *bridge = noentEntitlementBridge;
+    *bridge = noentBridge;
 
     return MAMA_STATUS_OK;
 }
@@ -94,12 +64,16 @@ mama_status
 noentEntitlementBridge_handleNewSubscription(mamaEntitlementBridge mamaEntBridge, SubjectContext* ctx)
 {
     mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_handleNewSubscription():");
-    noentEntitlementBridge* noentBridge = (noentEntitlementBridge*) 
 
+    /* implementation object */
     noentEntitlementSubscriptionHandle* noentSubHandle = calloc(1,sizeof(noentEntitlementSubscriptionHandle));
 
+    /* mama level object */
+    mamaEntitlementSubscription mamaEntSub = calloc (1, sizeof(mamaEntitlementSubscription));
+    mamaEntSub->mImpl =  noentSubHandle;
+
     ctx->mEntitlementBridge = mamaEntBridge;
-    ctx->mEntitlementSubscription->mImpl = noentSubHandle;
+    ctx->mEntitlementSubscription = mamaEntSub;
 
     return MAMA_STATUS_OK;
 }
@@ -108,49 +82,21 @@ mama_status
 noentEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle* handle, int isSnapshot)
 {
     mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_setIsSnapShot():");
-    noentEntitlementSubscriptionHandle* noentSubHandle = (noentEntitlementSubscriptionHandle*) handle;
-    handle->mIsSnapshot = isSnapshot;
 }
 
 int
 noentEntitlementBridge_isAllowed(entitlementSubscriptionHandle* handle, char* subject)
 {
-    mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_isAllowed():");
-    return 1;
+    char* src = strtok (subject,".");
+    char* sym = strtok (NULL,".");
+
+    mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_isAllowed(%s)",subject);
+
+    if (strncmp(sym, "failent", strlen("failent")))
+    {
+        return 1;
+    }
+
+    return 0;
 }
-
-
-/*
-void
-entitlementDisconnectCallback (noentClient*                   client,
-                               const noent_DISCONNECT_REASON  reason,
-                               const char * const           userId,
-                               const char * const           host,
-                               const char * const           appName)
-{
-    mama_log(MAMA_LOG_LEVEL_FINEST, "entitlementDisconnectCallback():");
-
-    mamaImpl_entitlementDisconnectCallback(reason, userId, host, appName);
-}
-
-void
-entitlementUpdatedCallback (noentClient* client,
-                            int openSubscriptionForbidden)
-{
-    mama_log(MAMA_LOG_LEVEL_FINEST, "entitlementUpdatedCallback():");
-
-    mamaImpl_entitlementUpdatedCallback();
-}
-
-void
-entitlementCheckingSwitchCallback (noentClient*   client,
-                                   int isEntitlementsCheckingDisabled)
-{
-    mama_log(MAMA_LOG_LEVEL_FINEST, "entitlementCheckingSwitchCallback():");
-
-    mamaImpl_entitlementCheckingSwitchCallback(isEntitlementsCheckingDisabled);
-}
-*/
-
-
 
