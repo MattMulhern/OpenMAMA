@@ -178,7 +178,7 @@ mamaInternal_getEntitlementBridgeCount (void);
  * @return MAMA_STATUS_OK if successful.
  */
  mama_status
-mamaInternal_getEntitlementBridgeByName(mamaEntitlementBridge* entBridge, char* name);
+mamaInternal_getEntitlementBridgeByName(mamaEntitlementBridge* entBridge, const char* name);
 
 /* ************************************************************************* */
 /* Callbacks. */

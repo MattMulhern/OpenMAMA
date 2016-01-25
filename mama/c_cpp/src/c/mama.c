@@ -1739,8 +1739,6 @@ mama_getIpAddress (const char** ipAddress)
     return MAMA_STATUS_OK;
 }
 
-
-//MMTODO: needs wired up!
 mama_status
 mama_registerEntitlementCallbacks (const mamaEntitlementCallbacks* entitlementCallbacks)
 {
@@ -2955,7 +2953,7 @@ mamaInternal_getEntitlementBridgeCount ()
  * @return MAMA_STATUS_OK if successful.
  */
 mama_status
-mamaInternal_getEntitlementBridgeByName(mamaEntitlementBridge* entBridge, char* name)
+mamaInternal_getEntitlementBridgeByName(mamaEntitlementBridge* entBridge, const char* name)
 {
     mamaEntitlementLib* entitlementLib;
     entitlementLib = (mamaEntitlementLib*) wtable_lookup (gImpl.entitlements.table,
