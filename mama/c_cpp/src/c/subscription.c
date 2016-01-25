@@ -48,7 +48,7 @@
 #include "wombat/wInterlocked.h"
 #include "queueimpl.h"
 #include "property.h"
-
+#include <mama/entitlement.h>
 #include "entitlementinternal.h"
 extern int gGenerateGlobalStats;
 extern int gGenerateQueueStats;
@@ -459,7 +459,7 @@ mamaSubscription_setupBasic (
 
         if (NULL != mamaEntBridge)
         {
-            mamaEntBridge->handleNewSubscription(mamaEntBridge, &self->mSubjectContext);
+            mamaEntBridge->createSubscription(mamaEntBridge, &self->mSubjectContext);
         }
         else
         {
@@ -1404,8 +1404,7 @@ static void freeCacheCb (
     #ifdef WITH_ENTITLEMENTS
     if (ctx->mEntitlementSubscription != NULL)
     {
-        //todo: check we're destroying the right thing here!
-        mamaEntitlementSubscription_destroy (ctx->mEntitlementSubscription);
+        mamaEntitlementBridge_destroySubscription (ctx->mEntitlementSubscription);
         ctx->mEntitlementSubscription = NULL;
     }
     #endif
@@ -1459,7 +1458,7 @@ mamaSubscription_cleanup (mamaSubscription subscription)
         if (self->mSubjectContext.mEntitlementSubscription != NULL)
         {
             /* Destroy will also close a subscription if it is open */
-            mamaEntitlementSubscription_destroy (self->mSubjectContext.mEntitlementSubscription);
+            mamaEntitlementBridge_destroySubscription (self->mSubjectContext.mEntitlementSubscription);
             self->mSubjectContext.mEntitlementSubscription = NULL;
         }
     }

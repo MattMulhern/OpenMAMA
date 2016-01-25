@@ -25,19 +25,22 @@
 #include <entitlementinternal.h>
 
 mama_status
-mamaEntitlementSubscription_create(mamaEntitlementSubscription* subscription)
+mamaEntitlementBridge_createSubscription(mamaEntitlementSubscription* subscription)
 {
-    //TODO: check where this should actually be used!!
     mamaEntitlementSubscription sub = malloc(sizeof(mamaEntitlementSubscription));
     *subscription = sub;
     return MAMA_STATUS_OK;
 }
 
 mama_status
-mamaEntitlementSubscription_destroy(mamaEntitlementSubscription subscription)
+mamaEntitlementBridge_destroySubscription(mamaEntitlementSubscription subscription)
 {
-    //TODO: what needs free'd here?
-     return MAMA_STATUS_NOT_IMPLEMENTED;
+    if (NULL != subscription->mImpl)
+    {
+        mamaEntitlementBridge entBridge = (mamaEntitlementBridge) subscription->mEntitlementBridge;
+        entBridge->destroySubscription(subscription->mImpl);
+    }
+    return MAMA_STATUS_OK;
 }
 
 mama_status
@@ -59,7 +62,7 @@ mamaEntitlementBridge_destroy(mamaEntitlementBridge bridge)
         {
             /* Call bridge implementation destroy method. */
             mamaEntitlementBridge impl = (mamaEntitlementBridge) bridge->mImpl;
-            impl->entitlementDestroy(bridge);
+            impl->destroy(bridge);
         }
         free(bridge);
     }

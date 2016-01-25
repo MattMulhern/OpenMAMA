@@ -45,7 +45,10 @@ mama_status
 noentEntitlementBridge_registerSubjectContext(SubjectContext* ctx);
 
 mama_status
-noentEntitlementBridge_handleNewSubscription(mamaEntitlementBridge entBridge, SubjectContext* ctx);
+noentEntitlementBridge_createSubscription(mamaEntitlementBridge entBridge, SubjectContext* ctx);
+
+mama_status
+noentEntitlementBridge_destroySubscription(entitlementSubscriptionHandle* handle);
 
 mama_status
 noentEntitlementBridge_setIsSnapshot(entitlementSubscriptionHandle* handle, int isSnapshot);

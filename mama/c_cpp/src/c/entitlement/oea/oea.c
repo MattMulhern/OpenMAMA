@@ -27,6 +27,7 @@
 #include <OeaSubscription.h>
 /* mama */
 #include "mama/mama.h"
+#include "mama/entitlement.h"
 #include "subscriptionimpl.h"
 #include "oea.h"
 #include "subscriptionimpl.h"
@@ -276,7 +277,7 @@ oeaEntitlmentBridge_parseServersProperty()
 
 
 mama_status
-oeaEntitlementBridge_handleNewSubscription(mamaEntitlementBridge mamaEntBridge, SubjectContext* ctx)
+oeaEntitlementBridge_createSubscription(mamaEntitlementBridge mamaEntBridge, SubjectContext* ctx)
 {
     oeaEntitlementBridge*  oeaBridge = (oeaEntitlementBridge*) mamaEntBridge->mImpl;
 
@@ -292,12 +293,27 @@ oeaEntitlementBridge_handleNewSubscription(mamaEntitlementBridge mamaEntBridge, 
     ctx->mEntitlementBridge = mamaEntBridge;
 
     /* Allocate mama_level entitlement subscription object and set implementation struct pointer. */
-    mamaEntitlementSubscription mamaEntSub = calloc (1, sizeof(mamaEntitlementSubscription));
-    mamaEntSub->mImpl =  oeaSubHandle;
+    mamaEntitlementSubscription mamaEntSub;
+    mamaEntitlementBridge_createSubscription(&mamaEntSub); //TODO: should this function set mImpl and mEntitlementBridge also?
+
+    mamaEntSub->mImpl              = oeaSubHandle;
+    mamaEntSub->mEntitlementBridge = mamaEntBridge;
 
     /* Add mama level struct to subscription SubjectContext. */
     ctx->mEntitlementSubscription = mamaEntSub;
+    ctx->mEntitlementBridge       = mamaEntBridge;
 
+    return MAMA_STATUS_OK;
+}
+
+mama_status
+oeaEntitlementBridge_destroySubscription(entitlementSubscriptionHandle* handle)
+{
+    oeaEntitlementSubscriptionHandle* oeaSubHandle = (oeaEntitlementSubscriptionHandle*) handle;
+    if (NULL != oeaSubHandle->mOeaSubscription)
+    {
+        oeaSubscription_destroy(oeaSubHandle->mOeaSubscription);
+    }
     return MAMA_STATUS_OK;
 }
 
@@ -316,7 +332,6 @@ oeaEntitlementBridge_isAllowed(entitlementSubscriptionHandle* handle, char* subj
     return oeaSubscription_isAllowed (oeaSubHandle->mOeaSubscription); 
 
 }
-
 
 void
 entitlementDisconnectCallback (oeaClient*                   client,

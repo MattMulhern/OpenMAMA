@@ -370,10 +370,11 @@ mamaInternal_registerEntitlementFunctions (LIB_HANDLE               bridgeLib,
     mama_status status  = MAMA_STATUS_OK;
     void* result        = NULL;
     char  functionName[256];
-    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_destroy,                entitlementDestroy,         entitlementBridge_destroy);
+    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_destroy,                destroy,                    entitlementBridge_destroy);
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_registerSubjectContext, registerSubjectContext,     entitlementBridge_registerSubjectContext);
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_setIsSnapshot,          setIsSnapshot,              entitlementBridge_setIsSnapshot);
     REGISTER_BRIDGE_FUNCTION (EntitlementBridge_isAllowed,              isAllowed,                  entitlementBridge_isAllowed);
-    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_handleNewSubscription,  handleNewSubscription,      entitlementBridge_handleNewSubscription);
+    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_createSubscription,     createSubscription,         entitlementBridge_createSubscription);
+    REGISTER_BRIDGE_FUNCTION (EntitlementBridge_destroySubscription,    destroySubscription,        entitlementBridge_destroySubscription);
     return status;
 }

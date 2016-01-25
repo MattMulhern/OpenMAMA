@@ -61,12 +61,13 @@ noentEntitlementBridge_init(entitlementBridge* bridge)
 
 
 mama_status
-noentEntitlementBridge_handleNewSubscription(mamaEntitlementBridge mamaEntBridge, SubjectContext* ctx)
+noentEntitlementBridge_createSubscription(mamaEntitlementBridge mamaEntBridge, SubjectContext* ctx)
 {
-    mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_handleNewSubscription():");
+    mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_createSubscription():");
 
     /* implementation object */
-    noentEntitlementSubscriptionHandle* noentSubHandle = calloc(1,sizeof(noentEntitlementSubscriptionHandle));
+    noentEntitlementSubscriptionHandle* noentSubHandle;
+    mamaEntitlementBridge_createSubscription(&noentSubHandle);
 
     /* mama level object */
     mamaEntitlementSubscription mamaEntSub = calloc (1, sizeof(mamaEntitlementSubscription));
@@ -74,6 +75,14 @@ noentEntitlementBridge_handleNewSubscription(mamaEntitlementBridge mamaEntBridge
 
     ctx->mEntitlementBridge = mamaEntBridge;
     ctx->mEntitlementSubscription = mamaEntSub;
+
+    return MAMA_STATUS_OK;
+}
+
+mama_status
+noentEntitlementBridge_destroySubscription(entitlementSubscriptionHandle* handle)
+{
+    mama_log(MAMA_LOG_LEVEL_FINEST, "noentEntitlementBridge_destroySubscription():");
 
     return MAMA_STATUS_OK;
 }
@@ -99,4 +108,3 @@ noentEntitlementBridge_isAllowed(entitlementSubscriptionHandle* handle, char* su
 
     return 0;
 }
-

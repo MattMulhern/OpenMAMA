@@ -31,10 +31,10 @@ typedef struct mamaEntitlementBridge_* mamaEntitlementBridge;
 typedef struct mamaEntitlementSubscription_* mamaEntitlementSubscription;
 
 mama_status
-mamaEntitlementSubscription_create (mamaEntitlementSubscription* subscription);
+mamaEntitlementBridge_createSubscription (mamaEntitlementSubscription* subscription);
 
 mama_status
-mamaEntitlementSubscription_destroy (mamaEntitlementSubscription subscription);
+mamaEntitlementBridge_destroySubscription (mamaEntitlementSubscription subscription);
 
 mama_status
 mamaEntitlementBridge_create (mamaEntitlementBridge* bridge);
