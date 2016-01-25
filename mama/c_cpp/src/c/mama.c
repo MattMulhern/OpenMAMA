@@ -123,7 +123,7 @@ static mamaPayloadBridge    gDefaultPayload = NULL;
 
 static wthread_key_t last_err_key;
 
-char* loadedBridges [MAX_ENTITLEMENT_BRIDGES] = {"oea", "dacs"};
+char* loadedBridges [MAX_ENTITLEMENT_BRIDGES] = {"oea", "noent"};
 
 /**
  * struct mamaApplicationGroup
@@ -894,25 +894,32 @@ mama_openWithPropertiesCount (const char* path,
                 "Please see the Licensing file for details\n"
                 "**********************************************************************************");
 #else
-    /* MMTODO: just loading oea libs here, need to put somethign more dynamic in here 
-     * note: mama_loadEntitlementBridge already populates gImpl.entitlements wtable.
-     */
-    if (MAMA_STATUS_OK != mama_loadEntitlementBridge("noent"))
+    int bridgeIdx = 0;
+    while (NULL != loadedBridges[bridgeIdx])
     {
-        //TODO: mamaEntitlementBridge_destroy() here??
-        mama_log(MAMA_LOG_LEVEL_SEVERE,
-                 "mama_openWithProperties(): "
-                 "Could not load entitlements library.");
-        
-        wthread_static_mutex_unlock (&gImpl.myLock);
-        mama_close();
-        
-        if (count)
-            *count = gImpl.myRefCount;
+        mama_log(MAMA_LOG_LEVEL_FINE,
+                 "Trying to load %s entitlement bridge.",
+                 loadedBridges[bridgeIdx]);
 
-        return result;
+        result = mama_loadEntitlementBridge(loadedBridges[bridgeIdx]);
+
+        if (MAMA_STATUS_OK != result)
+        {
+            mama_log(MAMA_LOG_LEVEL_SEVERE,
+                     "mama_openWithProperties(): "
+                     "Could not load %s entitlements library.",
+                     loadedBridges[bridgeIdx]);
+            
+            wthread_static_mutex_unlock (&gImpl.myLock);
+            mama_close();
+            
+            if (count)
+                *count = gImpl.myRefCount;
+
+            return result;
+        }
+        bridgeIdx++;
     }
-
 #endif /* WITH_ENTITLEMENTS */
 
     mama_statsInit();
