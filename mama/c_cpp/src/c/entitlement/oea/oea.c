@@ -71,7 +71,7 @@ oeaEntitlementBridge_registerSubjectContext(SubjectContext* ctx)
 {
     mama_log(MAMA_LOG_LEVEL_ERROR, "oeaEntitlementBridge_registerSubjectContext():");
 
-    oeaSubscription*    oeaSub = (oeaSubscription*) ctx->mEntitlementBridge->mImpl;
+    oeaSubscription*    oeaSub = (oeaSubscription*) ctx->mEntitlementSubscription->mImpl;
 
     oeaSubscription_addEntitlementCode (oeaSub, ctx->mEntitleCode);
     oeaSubscription_open (oeaSub);
@@ -294,7 +294,7 @@ oeaEntitlementBridge_createSubscription(mamaEntitlementBridge mamaEntBridge, Sub
 
     /* Allocate mama_level entitlement subscription object and set implementation struct pointer. */
     mamaEntitlementSubscription mamaEntSub;
-    mamaEntitlementBridge_createSubscription(&mamaEntSub); //TODO: should this function set mImpl and mEntitlementBridge also?
+    mamaEntitlementBridge_createSubscription(&mamaEntSub);
 
     mamaEntSub->mImpl              = oeaSubHandle;
     mamaEntSub->mEntitlementBridge = mamaEntBridge;

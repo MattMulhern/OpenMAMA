@@ -2439,13 +2439,9 @@ isEntitledToSymbol (const char *source, const char*symbol, mamaSubscription subs
         return 1;
     }
 
-    // mamaTransport transport = NULL;
-    // mamaSubscription_getTransport(subscription, &transport);
-
     mamaEntitlementBridge entBridge = NULL;
     mamaTransportImpl_getEntitlementBridge(transport, &entBridge);
 
-    //oeaEntitlementBridge_isAllowed(oeaEntitlementSubscriptionHandle handle, char* subject)
     entitlementSubscriptionHandle handle= self->mSubjectContext.mEntitlementSubscription->mImpl;
     result = entBridge->isAllowed(handle, subject);
     return result;

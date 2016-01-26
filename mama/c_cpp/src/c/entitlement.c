@@ -27,7 +27,7 @@
 mama_status
 mamaEntitlementBridge_createSubscription(mamaEntitlementSubscription* subscription)
 {
-    mamaEntitlementSubscription sub = malloc(sizeof(mamaEntitlementSubscription));
+    mamaEntitlementSubscription sub = malloc(sizeof(mamaEntitlementSubscription_));
     *subscription = sub;
     return MAMA_STATUS_OK;
 }
