@@ -15,9 +15,6 @@ sources = Glob('*.c')
 
 if env['entitled'] == True:
         env.Append( 
-        LIBPATH = [ os.path.join(env['entitle_home'],'lib') ],
-        CPPPATH = [ os.path.join(env['entitle_home'],'include/oea') ],
-        LIBS = ['oeac'],
         CPPDEFINES = ['WITH_ENTITLEMENTS'])
 
 env.Append( LIBPATH = libPath )
