@@ -163,6 +163,25 @@ libmama_sources = \
     fieldcache/fieldcachevector.c
 """)
 
+if len(env['entitlements']) > 0:
+    """
+    Populate mama/c_cpp/src/c/entitlementlibraries.c with array of libraries to be made
+    mamdatory to load at runtime.
+    """
+    entitlementLibsFile = os.path.join(Dir('#').abspath,'mama/c_cpp/src/c/entitlementlibraries.c')
+
+    fp = open(entitlementLibsFile, 'w')
+    fp.write("#include <mamainternal.h>\n")
+
+    libstr = "char* loadedBridges [MAX_ENTITLEMENT_BRIDGES] = {{\"{}\"".format(env['entitlements'][0])
+    for lib in env['entitlements'][1:]:
+        libstr = "{0},\"{1}\"".format(libstr,lib)
+    libstr += '};\n'
+    fp.write(libstr)
+    fp.close()
+
+    libmama_sources.append('entitlementlibraries.c')
+
 objects = []
 StaticLibs['libmama'] = []
 

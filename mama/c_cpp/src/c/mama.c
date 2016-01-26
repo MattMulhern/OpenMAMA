@@ -60,11 +60,8 @@
 extern void initReservedFields (void);
 
 
-//mamaEntitlementBridge    gEntitlementBridge;
 mamaEntitlementCallbacks  gEntitlementCallbacks;
 static const char*        gServerProperty     = NULL;
-//static const char*        gServers[MAX_ENTITLEMENT_SERVERS];
-// static mama_status enableEntitlements ();
 #ifdef WITH_ENTITLEMENTS
 static const char*        gEntitled = "entitled";
 #else
@@ -123,7 +120,7 @@ static mamaPayloadBridge    gDefaultPayload = NULL;
 
 static wthread_key_t last_err_key;
 
-char* loadedBridges [MAX_ENTITLEMENT_BRIDGES] = {"oea", "noent"};
+extern char* loadedBridges [MAX_ENTITLEMENT_BRIDGES];
 
 /**
  * struct mamaApplicationGroup

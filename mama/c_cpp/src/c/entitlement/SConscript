@@ -4,19 +4,8 @@ env = env.Clone()
 
 modules = []
 
-"""
-if env.get('with_enterprise',None) == True:
-    modules.append('wombatmsg')
-    modules.append('wcache')
-
-if 'avis' in env['middleware']:
-    modules.append('avismsg')
-if 'qpid' in env['middleware']:
-    modules.append('qpidmsg') 
-"""
-
-modules.append('noent')
-modules.append('oea')
+for lib in env['entitlements']:
+    modules.append(lib)
 
 for m in modules:
    env.SConscript( os.path.join(m,'SConscript'), 'env' )
