@@ -97,7 +97,7 @@ oeaEntitlementBridge_destroy(mamaEntitlementBridge bridge)
     {
         oeaClient_destroy (entBridge->mOeaClient);
     }
-    free(bridge);
+    free(entBridge);
     return MAMA_STATUS_OK;
 }
 

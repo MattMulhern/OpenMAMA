@@ -1216,14 +1216,12 @@ mama_closeCount (unsigned int* count)
 
     if (!--gImpl.myRefCount)
     {
-// #ifdef WITH_ENTITLEMENTS
-//         if( gEntitlementBridge != 0 )
-//         {
-//             mamaEntitlementBridge_destroy (gEntitlementBridge);
-//             gEntitlementBridge = 0;
-//         }
-        //TODO: replace this with free'ing ALL entitlement libs
-//#endif /* WITH_ENTITLEMENTS */
+#ifdef WITH_ENTITLEMENTS
+        for (int bridgeCount=0 ; bridgeCount < gImpl.entitlements.count ; bridgeCount++)
+        {
+            mamaEntitlementBridge_destroy(gImpl.entitlements.byIndex[bridgeCount]->bridge);
+        }
+#endif /* WITH_ENTITLEMENTS */
 
         wthread_key_delete(last_err_key);
 

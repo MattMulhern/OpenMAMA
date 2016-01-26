@@ -61,8 +61,7 @@ mamaEntitlementBridge_destroy(mamaEntitlementBridge bridge)
         if (bridge->mImpl)
         {
             /* Call bridge implementation destroy method. */
-            mamaEntitlementBridge impl = (mamaEntitlementBridge) bridge->mImpl;
-            impl->destroy(bridge);
+            bridge->destroy(bridge);
         }
         free(bridge);
     }
